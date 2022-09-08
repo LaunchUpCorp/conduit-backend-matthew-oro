@@ -1,10 +1,10 @@
 import { Router } from "express";
-
+import emptyEndpointResponse from "../utils/index.js";
 const router = Router();
 
 // default route
 router.get("/", (req, res) => {
-  res.send({ status: "API is running on /api" });
+  res.send(emptyEndpointResponse());
 });
 
 export default router;

@@ -12,6 +12,7 @@ This repository is the Back End of the website, it leverages Node, Express & Seq
 - create a .env file with a `PORT` variable and a `DATABASE_URL` variable
 - run `npm run dev` to start the server
 - go to `localhost:4000/api` to see the server running
+- To run the tests, run `npm test`
 
 The server will reload when you make changes.
 
