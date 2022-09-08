@@ -1,9 +1,15 @@
-# NodeExpressSQLBackend
+# Online Forum Server
+
+This project is focused on creating a fully featured Online Forum server that includes authentication, scalability , database design.
+
+The project is designed to be robust and follow best use industry standards in the development process.
+
+This repository is the Back End of the website, it leverages Node, Express & Sequelize.
 
 ## Getting Started
 
 - run `npm install` to install all dependencies
-- Create a .env file with a `PORT` variable and a `DATABASE_URL` variable
+- create a .env file with a `PORT` variable and a `DATABASE_URL` variable
 - run `npm run dev` to start the server
 - go to `localhost:4000/api` to see the server running
 
