@@ -24,11 +24,6 @@ const UserModel = sequelize.define(
       unique: true,
       allowNull: false,
     },
-    salt: {
-      type: DataTypes.STRING,
-      unique: true,
-      allowNull: false,
-    },
     bio: {
       type: DataTypes.STRING,
     },
