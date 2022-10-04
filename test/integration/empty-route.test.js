@@ -12,7 +12,7 @@ describe("Integration tests for the empty API route", () => {
   it("GET /api - success -  return api working message", async () => {
     const response = await request(app).get("/api");
     console.log(response.body);
-    expect(response.statusCode).toBe(200);
-    expect(response.body.status).toEqual("API is running on /api");
+    await expect(response.statusCode).toBe(200);
+    await expect(response.body.status).toEqual("API is running on /api");
   });
 });
