@@ -1,14 +1,13 @@
 import { Router } from "express";
 import emptyEndpointResponse from "../utils/index.js";
 const router = Router();
-import { UserModel } from '../models/index.js'
+import { registerUser } from '../controllers/users'
 
 // default route
 router.get("/", (req, res) => {
   res.send(emptyEndpointResponse());
 });
 
-router.post("/users",  (req, res) => {
-})
+router.post("/users", registerUser)
 
 export default router;
