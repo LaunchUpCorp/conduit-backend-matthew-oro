@@ -31,11 +31,8 @@ export async function registerUser(req, res) {
         image: newUser.image
       }
     }
-
-    res.status(201).send(returnData)
-
+    return res.status(201).send(returnData)
   } catch (e) {
-    console.log(e)
-    throw new Error(e)
+    throw console.error("Error",e)
   }
 }
