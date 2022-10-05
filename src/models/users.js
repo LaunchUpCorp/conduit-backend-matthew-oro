@@ -10,7 +10,7 @@ const UserModel = sequelize.define(
       allownull: false,
     },
     token: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(5000),
       unique: true,
       allownull: false,
     },
