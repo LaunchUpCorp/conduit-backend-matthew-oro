@@ -5,7 +5,10 @@ export function validateBody(reqBody, expected) {
   const reqKeys = Object.keys(reqBody);
   const expectedKeys = Object.keys(expected);
   const result = reqKeys.some((objKey) => {
-    if (!expectedKeys.includes(objKey)) {
+    if (
+      reqKeys.length !== expectedKeys.length ||
+      !expectedKeys.includes(objKey)
+    ) {
       return true;
     }
     if (expected[objKey].split(" ").length > 1) {
@@ -19,7 +22,7 @@ export function validateBody(reqBody, expected) {
     }
     if (
       typeof reqBody[objKey] !== expected[objKey] &&
-      expected[objKey] !== "null"
+      reqBody[objKey] !== null
     ) {
       return true;
     }
