@@ -29,3 +29,7 @@ export function validateBody(reqBody, expected) {
   }
   return true;
 }
+export function validateEmail(email){
+  const regex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+  return regex.test(email)
+}
