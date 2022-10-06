@@ -1,4 +1,4 @@
-import { validateBody } from "../../src/utils/index";
+import { validateBody } from "../../src/utils/validators";
 
 describe("invalid input using validateBody(reqBody,expectedObj)", () => {
   const expectedObj = {
