@@ -1,6 +1,3 @@
-const emptyEndpointResponse = () => {
-  return { status: "API is running on /api" };
-};
 export function validateBody(reqBody, expected) {
   const reqKeys = Object.keys(reqBody);
   const expectedKeys = Object.keys(expected);
@@ -32,5 +29,3 @@ export function validateBody(reqBody, expected) {
   }
   return true;
 }
-
-export default emptyEndpointResponse;
