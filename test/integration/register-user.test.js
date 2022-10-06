@@ -1,8 +1,5 @@
-const express = require("express");
-const request = require("supertest");
-import routes from "../../src/routes/index";
+import {express, request, routes, app} from '../../src/utils/integrationTestSetup'
 import UserModel from '../../src/models/users'
-const app = express();
 
 app.use(express.json());
 
