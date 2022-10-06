@@ -7,6 +7,7 @@ const UserModel = sequelize.define(
     email: {
       type: DataTypes.STRING,
       unique: true,
+      primaryKey: true,
       allownull: false,
     },
     token: {
