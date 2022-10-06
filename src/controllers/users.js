@@ -12,7 +12,7 @@ export async function registerUser(req, res) {
       password: "string",
     };
     if (!user || !validateBody(user,expectedPayload)) {
-      res.status(400).send("Invalid request payload");
+      res.status(400).send("Invalid request body paload, refer to the docs for the endpoint payload");
       throw new Error("Invalid request payload");
     }
 
