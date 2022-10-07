@@ -35,19 +35,20 @@ export async function registerUser(req, res) {
     const token = signToken(newUser)
     newUser.setDataValue('token', token)
     await newUser.save()
-    return res.status(201).send(userResponse(newUser));
+    const responseData = userResponse(newUser)
+    return res.status(201).json(responseData);
   } catch (e) {
     console.error(e);
     throw new Error("Errors found on user registerUser controller");
   }
 }
 
-function signToken(payload) {
-  const { token, createdAt, updatedAt, ...newPayload } = payload
+export function signToken(payload) {
+  const { token, createdAt, updatedAt, ...newPayload } = payload.get()
   return jwt.sign(newPayload, process.env.PRIVATE_KEY, { algorithm: 'RS256' })
 }
 
-function userResponse(payload) {
+export function userResponse(payload) {
   return {
     user: {
       email: payload.getDataValue('email'),
