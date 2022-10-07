@@ -18,3 +18,8 @@ export async function registerUserTest(testInfo) {
     },
   });
 }
+
+export async function getToken(email) {
+  const user = await UserModel.findOne({ where: { email: email } });
+  return user.getDataValue("token");
+}
