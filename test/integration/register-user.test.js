@@ -24,11 +24,10 @@ export async function registerUserTest() {
       image: expect.toBeOneOf([null, expect.any(String)])
     }
   })
-
 }
 
 describe("Integration tests for user registration - POST API route for /api/users", () => {
-  afterAll(async () => {
+  afterEach(async () => {
     await UserModel.destroy({
       where: {
         email: "jake@jake.jake"
