@@ -1,9 +1,8 @@
-import UserModel from '../../src/models/users'
-import {request, app} from '../../src/utils/integrationTestSetup'
-
+import UserModel from "../../src/models/users";
+import { request, app } from "../../src/utils/integrationTestSetup";
 
 export async function destroyColumn(email) {
-  await UserModel.destroy({ where: { email: email } })
+  await UserModel.destroy({ where: { email: email } });
 }
 
 export async function registerUserTest(testInfo) {
@@ -15,7 +14,7 @@ export async function registerUserTest(testInfo) {
       token: expect.any(String),
       username: expect.any(String),
       bio: expect.toBeOneOf([null, expect.any(String)]),
-      image: expect.toBeOneOf([null, expect.any(String)])
-    }
-  })
+      image: expect.toBeOneOf([null, expect.any(String)]),
+    },
+  });
 }
