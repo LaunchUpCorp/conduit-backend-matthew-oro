@@ -14,11 +14,11 @@ export async function registerUser(req, res) {
     if (!user) {
       throw new Error("No payload found");
     }
-    else if (!validateBody(user, expectedPayload)) {
-      throw new Error("Invalid payload format")
+    if (!validateBody(user, expectedPayload)) {
+      throw new Error("Invalid payload format");
     }
-    else if (!validateEmail(user.email)) {
-      throw new Error("Invalid email format")
+    if (!validateEmail(user.email)) {
+      throw new Error("Invalid email format");
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -29,16 +29,22 @@ export async function registerUser(req, res) {
       email: user.email,
       hash: hash,
     });
-    const token = signToken(newUser)
-    newUser.setDataValue('token', token)
-    await newUser.save()
-    const responseData = userResponse(newUser)
+    const token = signToken(newUser.get());
+    newUser.setDataValue("token", token);
+    await newUser.save();
+    const responseData = userResponse(newUser.get());
     return res.status(201).json(responseData);
   } catch (e) {
     console.error(e);
-    if (e === "No payload found") return res.status(400).send("No payload found")
-    if (e === "Invalid payload format") return res.status(400).send("Invalid payload format, refer to docs for payload format")
-    if (e === "Invalid email format") return res.status(400).send("Invalid email format")
+    if (e.message === "No payload found")
+      return res.status(400).send(e.message);
+    if (e.message === "Invalid payload format")
+      return res.status(400).send(e.message);
+    if (e.message === "Invalid email format")
+      return res.status(400).send(e.message);
+    return res.status(500).send("Server error");
+  }
+}
     return res.status(500).send("Server error")
   }
 }
