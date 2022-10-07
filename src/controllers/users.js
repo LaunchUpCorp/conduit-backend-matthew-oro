@@ -45,23 +45,44 @@ export async function registerUser(req, res) {
     return res.status(500).send("Server error");
   }
 }
+
+export async function getUser(req, res) {
+  try {
+    if (!req.get("Authorization")) {
+      throw new Error("Authorization header empty");
+    }
+    const token = req.get("Authorization").split(" ")[1];
+
+    const decode = jwt.verify(token, process.env.PUBLIC_KEY, { algorithms: 'RS256' })
+
+    const user = await UserModel.findOne({ where: { email: decode.email } })
+
+    const responseData = userResponse(user.get())
+
+    return res.send(200).json(responseData)
+
+  } catch (e) {
+    console.error(e);
+    if (e.message === "Authorization header empty") return res.status(403).send(e.message);
+    if (e.name === "JsonWebTokenError") return res.status(403).send(e.message)
     return res.status(500).send("Server error")
+
   }
 }
 
 export function signToken(payload) {
-  const { token, createdAt, updatedAt, ...newPayload } = payload.get()
-  return jwt.sign(newPayload, process.env.PRIVATE_KEY, { algorithm: 'RS256' })
+  const { token, createdAt, updatedAt, ...newPayload } = payload;
+  return jwt.sign(newPayload, process.env.PRIVATE_KEY, { algorithm: "RS256" });
 }
 
 export function userResponse(payload) {
   return {
     user: {
-      email: payload.getDataValue('email'),
-      token: payload.getDataValue('token'),
-      username: payload.getDataValue('username'),
-      bio: payload.getDataValue('bio'),
-      image: payload.getDataValue('image'),
-    }
-  }
+      email: payload.email,
+      token: payload.token,
+      username: payload.username,
+      bio: payload.bio,
+      image: payload.image,
+    },
+  };
 }
