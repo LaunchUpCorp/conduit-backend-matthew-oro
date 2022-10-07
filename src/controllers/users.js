@@ -51,20 +51,20 @@ export async function getUser(req, res) {
     if (!req.get("Authorization")) {
       throw new Error("Authorization header empty");
     }
-    const token = req.get("Authorization").split(" ")[1];
+    const token = await req.get("Authorization").split(" ").pop();
 
     const decode = jwt.verify(token, process.env.PUBLIC_KEY, { algorithms: 'RS256' })
 
-    const user = await UserModel.findOne({ where: { email: decode.email } })
+    const user = await UserModel.findByPk(decode.email)
 
     const responseData = userResponse(user.get())
 
-    return res.send(200).json(responseData)
+    return res.status(200).json(responseData)
 
   } catch (e) {
     console.error(e);
     if (e.message === "Authorization header empty") return res.status(403).send(e.message);
-    if (e.name === "JsonWebTokenError") return res.status(403).send(e.message)
+    if (e.name === "JsonWebTokenError") return res.status(403).send("Invalid jwt token")
     return res.status(500).send("Server error")
 
   }
@@ -83,6 +83,6 @@ export function userResponse(payload) {
       username: payload.username,
       bio: payload.bio,
       image: payload.image,
-    },
+    }
   };
 }
