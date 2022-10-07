@@ -34,6 +34,7 @@ export async function registerUser(req, res) {
     });
     const token = signToken(newUser)
     newUser.setDataValue('token', token)
+    await newUser.save()
     return res.status(201).send(userResponse(newUser));
   } catch (e) {
     console.error(e);
