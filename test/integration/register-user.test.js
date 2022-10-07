@@ -1,38 +1,57 @@
-import {express, request, routes, app} from '../../src/utils/integrationTestSetup'
-import UserModel from '../../src/models/users'
+import {
+  express,
+  request,
+  routes,
+  app,
+} from "../../src/utils/integrationTestSetup";
+import { registerUserTest, destroyColumn } from "../../src/utils/userTestUtils";
 
 app.use(express.json());
 
 app.use("/api", routes);
 
-export async function registerUserTest() {
-  const testInfo = {
-    user: {
-      username: "Jacob",
-      email: "jake@jake.jake",
-      password: "jakejake",
-    },
-  };
-  const response = await request(app).post("/api/users").send(testInfo);
-  await expect(response.statusCode).toBe(201);
-  await expect(response.body).toMatchObject({
-    user: {
-      email: expect.any(String),
-      token: expect.any(String),
-      username: expect.any(String),
-      bio: expect.toBeOneOf([null, expect.any(String)]),
-      image: expect.toBeOneOf([null, expect.any(String)])
-    }
-  })
-}
-
 describe("Integration tests for user registration - POST API route for /api/users", () => {
-  afterEach(async () => {
-    await UserModel.destroy({
-      where: {
-        email: "jake@jake.jake"
-      }
-    })
-  })
-  it("POST /api/users - success - return status 201 and user object", registerUserTest)
+  describe("Valid POST request", () => {
+    const test = {
+      user: {
+        username: "tester",
+        email: "test@test.test",
+        password: "1testword",
+      },
+    };
+    afterEach(async () => await destroyColumn(test.user.email));
+    it("POST /api/users - success - return status 201 and user object", async () =>
+      await registerUserTest(test));
+  });
+  describe("Invalid POST request", () => {
+    it("Empty payload - return status 400 and throw error", async () => {
+      const response = await request(app).post("/api/users");
+      expect(response.statusCode).toBe(400);
+      expect(response.error.text).toEqual("No payload found");
+    });
+    it("Invalid payload format - return status 400 and throw error", async () => {
+      const test = {
+        user: {
+          fake: "faker",
+          chef: "ramsay",
+          id: 4,
+        },
+      };
+      const response = await request(app).post("/api/users").send(test);
+      expect(response.statusCode).toBe(400);
+      expect(response.error.text).toEqual("Invalid payload format");
+    });
+    it("Invalid email format - return status 400 and throw error", async () => {
+      const test = {
+        user: {
+          username: "bobby",
+          email: "bob",
+          password: "1bobword",
+        },
+      };
+      const response = await request(app).post("/api/users").send(test);
+      expect(response.statusCode).toBe(400);
+      expect(response.error.text).toEqual("Invalid email format");
+    });
+  });
 });
