@@ -12,15 +12,12 @@ export async function registerUser(req, res) {
       password: "string",
     };
     if (!user) {
-      res.status(400).send("No payload found");
-      throw new Error("Invalid request payload, no payload found");
+      throw new Error("No payload found");
     }
     else if (!validateBody(user, expectedPayload)) {
-      res.status(400).send("Invalid payload format, refer the documents for payload format")
       throw new Error("Invalid payload format")
     }
     else if (!validateEmail(user.email)) {
-      res.status(400).send("Invalid email format")
       throw new Error("Invalid email format")
     }
 
@@ -39,7 +36,10 @@ export async function registerUser(req, res) {
     return res.status(201).json(responseData);
   } catch (e) {
     console.error(e);
-    throw new Error("Errors found on user registerUser controller");
+    if (e === "No payload found") return res.status(400).send("No payload found")
+    if (e === "Invalid payload format") return res.status(400).send("Invalid payload format, refer to docs for payload format")
+    if (e === "Invalid email format") return res.status(400).send("Invalid email format")
+    return res.status(500).send("Server error")
   }
 }
 
