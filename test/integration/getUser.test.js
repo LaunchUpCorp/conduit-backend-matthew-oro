@@ -14,7 +14,7 @@ app.use(express.json());
 
 app.use("/api", routes);
 
-describe("Integration tests for user registration - GET API route for /api/users", () => {
+describe("Integration tests for requesting current user data - GET API route for /api/users", () => {
   describe("Valid GET request", () => {
     const test = {
       user: {
