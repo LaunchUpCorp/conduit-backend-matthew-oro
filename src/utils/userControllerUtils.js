@@ -1,10 +1,3 @@
-import jwt from 'jsonwebtoken'
-
-export function signToken(payload) {
-  const { token, createdAt, updatedAt, ...newPayload } = payload;
-  return jwt.sign(newPayload, process.env.PRIVATE_KEY, { algorithm: "RS256" });
-}
-
 export function userResponse(payload) {
   return {
     user: {
@@ -15,4 +8,9 @@ export function userResponse(payload) {
       image: payload.image,
     }
   };
+}
+
+export function getToken(header){
+  const token = header.split(" ").pop()
+  return token
 }
