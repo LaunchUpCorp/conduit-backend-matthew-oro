@@ -2,7 +2,9 @@ import UserModel from "../models/users";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { validateBody, validateEmail } from "../utils/validators";
-import { userResponse, signToken } from "../utils/userControllerUtils"
+import { userResponse, getToken } from "../utils/userControllerUtils";
+import { createUser, queryOneUser } from "../models/users"
+import { verifyToken } from "../utils/jwtUtils"
 
 export async function registerUser(req, res) {
   try {
@@ -21,19 +23,8 @@ export async function registerUser(req, res) {
     if (!validateEmail(user.email)) {
       throw new Error("Invalid email format");
     }
-
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(user.password, salt);
-
-    const newUser = await UserModel.create({
-      username: user.username,
-      email: user.email,
-      hash: hash,
-    });
-    const token = signToken(newUser.get());
-    newUser.setDataValue("token", token);
-    await newUser.save();
-    const responseData = userResponse(newUser.get());
+    const newUser = await createUser(user)
+    const responseData = userResponse(newUser);
     return res.status(201).json(responseData);
   } catch (e) {
     console.error(e);
@@ -52,22 +43,18 @@ export async function getUser(req, res) {
     if (!req.get("Authorization")) {
       throw new Error("Authorization header empty");
     }
-    const token = await req.get("Authorization").split(" ").pop();
-
-    const decode = jwt.verify(token, process.env.PUBLIC_KEY, { algorithms: 'RS256' })
-
-    const user = await UserModel.findByPk(decode.email)
-
-    const responseData = userResponse(user.get())
-
-    return res.status(200).json(responseData)
-
+    const token = getToken(req.get("Authorization")) 
+    const decode = verifyToken(token) 
+    const user = queryOneUser(decode.email);
+    const responseData = userResponse(user);
+    return res.status(200).json(responseData);
   } catch (e) {
     console.error(e);
-    if (e.message === "Authorization header empty") return res.status(403).send(e.message);
-    if (e.name === "JsonWebTokenError") return res.status(403).send("Invalid jwt token")
-    return res.status(500).send("Server error")
-
+    if (e.message === "Authorization header empty")
+      return res.status(403).send(e.message);
+    if (e.name === "JsonWebTokenError")
+      return res.status(403).send("Invalid jwt token");
+    return res.status(500).send("Server error");
   }
 }
 
