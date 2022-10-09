@@ -1,9 +1,4 @@
-import UserModel from "../../src/models/users";
 import { request, app } from "../../src/utils/integrationTestSetup";
-
-export async function destroyColumn(email) {
-  await UserModel.destroy({ where: { email: email } });
-}
 
 export async function registerUserTest(testInfo) {
   const response = await request(app).post("/api/users").send(testInfo);
@@ -19,7 +14,3 @@ export async function registerUserTest(testInfo) {
   });
 }
 
-export async function getToken(email) {
-  const user = await UserModel.findByPk(email);
-  return user.getDataValue("token");
-}

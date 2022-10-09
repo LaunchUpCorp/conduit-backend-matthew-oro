@@ -35,5 +35,24 @@ const UserModel = sequelize.define(
   {}
 );
 
+export async function destroyUser(email) {
+  await UserModel.destroy({ where: { email: email } });
+}
+
+export async function insertUser({ user }) {
+  const salt = await bcrypt.genSalt(10)
+  const hash = await bcrypt.hash(user.password, salt)
+  await UserModel.create({
+    username: user.username,
+    email: user.email,
+    hash: hash
+  })
+}
+
+export async function queryOneUser(email) {
+  const user = await UserModel.findOne({ where: { email: email } })
+  return user.get()
+}
+
 
 export default UserModel;
