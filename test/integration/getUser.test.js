@@ -1,7 +1,9 @@
 import {
+  getTestToken,
   getUserTest,
   invalidPayloadTest,
   invalidTokenTest,
+  registerUserTest,
 } from "../../src/utils/userTestUtils";
 import {
   express,
@@ -23,7 +25,7 @@ describe("Integration tests for requesting current user data - GET API route for
         password: "1coolword",
       },
     };
-    beforeEach(async () => await createUser(test.user));
+    beforeEach(async () => test.user.token = await getTestToken(test));
     afterEach(async () => await destroyUser(test.user.email));
     it("GET /api/users - success - return status 201 and user object", async () =>
       await getUserTest(test));
