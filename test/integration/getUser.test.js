@@ -1,14 +1,14 @@
 import {
+  getUserTest,
+  invalidPayloadTest,
+  invalidTokenTest,
+} from "../../src/utils/userTestUtils";
+import {
   express,
-  request,
   routes,
   app,
 } from "../../src/utils/integrationTestSetup";
-import {
-  registerUserTest,
-  destroyColumn,
-  getToken,
-} from "../../src/utils/userTestUtils";
+import { createUser, destroyUser } from "../../src/models/users";
 
 app.use(express.json());
 
@@ -23,36 +23,31 @@ describe("Integration tests for requesting current user data - GET API route for
         password: "1coolword",
       },
     };
-    beforeEach(async () => await registerUserTest(test));
-    afterEach(async () => await destroyColumn(test.user.email));
-    it("GET /api/users - success - return status 200 and user object", async () => {
-      const token = await getToken(test.user.email);
-      const response = await request(app)
-        .get("/api/users")
-        .set("Authorization", token);
-      expect(response.statusCode).toBe(200);
-      expect(response.body).toMatchObject({
-        user: {
-          email: expect.any(String),
-          token: expect.any(String),
-          username: expect.any(String),
-          bio: expect.toBeOneOf([null, expect.any(String)]),
-          image: expect.toBeOneOf([null, expect.any(String)]),
-        },
-      });
-    });
+    beforeEach(async () => await createUser(test.user));
+    afterEach(async () => await destroyUser(test.user.email));
+    it("GET /api/users - success - return status 201 and user object", async () =>
+      await getUserTest(test));
   });
   describe("Invalid GET request", () => {
     it("Empty authorization header - return status 403 and throw error", async () => {
-      const response = await request(app).get("/api/users");
-      console.log(response.error.text)
-      expect(response.statusCode).toBe(403);
-      expect(response.error.text).toEqual("Authorization header empty");
+      const testOptions = {
+        testInfo: test,
+        endpoint: "/api/users",
+        requestType: "GET",
+        statusCode: 403,
+        error: "Authorization header empty",
+      };
+      await invalidPayloadTest(testOptions);
     });
     it("Invalid jwt token  - return status 403 and throw error", async () => {
-      const response = await request(app).get("/api/users").set("Authorization", "Bearer polarbear");
-      expect(response.statusCode).toBe(403);
-      expect(response.error.text).toEqual("Invalid jwt token");
+      const testOptions = {
+        header: "Bearer polarbear",
+        endpoint: "/api/users",
+        requestType: "GET",
+        statusCode: 403,
+        error: "Invalid jwt token",
+      };
+      await invalidTokenTest(testOptions);
     });
   });
 });

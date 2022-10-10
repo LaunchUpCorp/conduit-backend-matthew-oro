@@ -1,10 +1,13 @@
 import {
   express,
-  request,
   routes,
   app,
 } from "../../src/utils/integrationTestSetup";
-import { registerUserTest, destroyColumn } from "../../src/utils/userTestUtils";
+import {
+  invalidPayloadTest,
+  registerUserTest,
+} from "../../src/utils/userTestUtils";
+import { destroyUser } from "../../src/models/users";
 
 app.use(express.json());
 
@@ -19,15 +22,21 @@ describe("Integration tests for user registration - POST API route for /api/user
         password: "1testword",
       },
     };
-    afterEach(async () => await destroyColumn(test.user.email));
+    afterEach(async () => await destroyUser(test.user.email));
     it("POST /api/users - success - return status 201 and user object", async () =>
       await registerUserTest(test));
   });
   describe("Invalid POST request", () => {
     it("Empty payload - return status 400 and throw error", async () => {
-      const response = await request(app).post("/api/users");
-      expect(response.statusCode).toBe(400);
-      expect(response.error.text).toEqual("No payload found");
+      const test = {};
+      const testOptions = {
+        testInfo: test,
+        endpoint: "/api/users",
+        requestType: "POST",
+        statusCode: 400,
+        error: "No payload found"
+      };
+      await invalidPayloadTest(testOptions);
     });
     it("Invalid payload format - return status 400 and throw error", async () => {
       const test = {
@@ -37,9 +46,14 @@ describe("Integration tests for user registration - POST API route for /api/user
           id: 4,
         },
       };
-      const response = await request(app).post("/api/users").send(test);
-      expect(response.statusCode).toBe(400);
-      expect(response.error.text).toEqual("Invalid payload format");
+      const testOptions = {
+        testInfo: test,
+        endpoint: "/api/users",
+        requestType: "POST",
+        statusCode: 400,
+        error: "Invalid payload format"
+      };
+      await invalidPayloadTest(testOptions);
     });
     it("Invalid email format - return status 400 and throw error", async () => {
       const test = {
@@ -49,9 +63,14 @@ describe("Integration tests for user registration - POST API route for /api/user
           password: "1bobword",
         },
       };
-      const response = await request(app).post("/api/users").send(test);
-      expect(response.statusCode).toBe(400);
-      expect(response.error.text).toEqual("Invalid email format");
+      const testOptions = {
+        testInfo: test,
+        endpoint: "/api/users",
+        requestType: "POST",
+        statusCode: 400,
+        error: "Invalid email format"
+      };
+      await invalidPayloadTest(testOptions);
     });
   });
 });
