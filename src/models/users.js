@@ -1,7 +1,6 @@
 import { DataTypes } from "sequelize-cockroachdb";
 import sequelize from "./index";
 import { generateHash } from "../utils/bcryptUtils";
-import { signToken } from "../utils/jwtUtils";
 
 const UserModel = sequelize.define(
   "User",
@@ -12,14 +11,8 @@ const UserModel = sequelize.define(
       primaryKey: true,
       allownull: false,
     },
-    token: {
-      type: DataTypes.STRING(5000),
-      unique: true,
-      allownull: false,
-    },
     username: {
-      type: DataTypes.STRING,
-      unique: true,
+      type: DataTypes.STRING, unique: true,
       allownull: false,
     },
     hash: {
@@ -44,7 +37,6 @@ export async function destroyUser(email) {
 export async function createUser(user) {
   const { password, ...insert } = user;
   insert.hash = await generateHash(user.password);
-  insert.token = signToken(insert);
   const newUser = await UserModel.create(insert);
   return newUser.get();
 }
