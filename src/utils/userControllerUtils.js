@@ -1,8 +1,8 @@
-export function userResponse(payload) {
+export function userResponse(payload,token) {
   return {
     user: {
       email: payload.email,
-      token: payload.token,
+      token: token,
       username: payload.username,
       bio: payload.bio,
       image: payload.image,
