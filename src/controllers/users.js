@@ -1,10 +1,7 @@
-import UserModel from "../models/users";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 import { validateBody, validateEmail } from "../utils/validators";
 import { userResponse, getToken } from "../utils/userControllerUtils";
 import { createUser, queryOneUser } from "../models/users"
-import { verifyToken } from "../utils/jwtUtils"
+import { verifyToken, signToken } from "../utils/jwtUtils"
 
 export async function registerUser(req, res) {
   try {
@@ -23,8 +20,10 @@ export async function registerUser(req, res) {
     if (!validateEmail(user.email)) {
       throw new Error("Invalid email format");
     }
+    const {password, ...tokenPayload} = user
+    const token = signToken(tokenPayload)
     const newUser = await createUser(user)
-    const responseData = userResponse(newUser);
+    const responseData = userResponse(newUser,token);
     return res.status(201).json(responseData);
   } catch (e) {
     console.error(e);
