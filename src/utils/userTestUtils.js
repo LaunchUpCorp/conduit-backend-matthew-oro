@@ -54,9 +54,18 @@ export async function invalidPayloadTest({
   }
 }
 
+export async function getTestToken(testInfo){
+  try {
+    const response = await request(app).post("/api/users").send(testInfo);
+    return response.body.user.token
+  } catch (e) {
+    console.error(e);
+  }
+
+}
 export async function getUserTest({ user }) {
     try {
-      const { token } = await queryOneUser(user.email);
+      const { token } = user;
       const response = await request(app)
         .get("/api/users")
         .set("Authorization", token);
