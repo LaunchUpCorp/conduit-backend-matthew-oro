@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 
 export function signToken(payload) {
   const signed = jwt.sign(payload, process.env.PRIVATE_KEY, {
-    algorithm: "RS256",
+    algorithm: "RS256", expiresIn: '1w'
   });
   return signed;
 }
