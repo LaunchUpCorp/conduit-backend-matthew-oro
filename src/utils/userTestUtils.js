@@ -139,7 +139,7 @@ export async function invalidTokenTest({
     console.error(e);
   }
 }
-export async function lognUserTest(testInfo) {
+export async function loginUserTest(testInfo) {
   try {
     const response = await request(app).post("/api/users/login").send(testInfo);
     expect(response.statusCode).toBe(200);
