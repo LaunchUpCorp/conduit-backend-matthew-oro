@@ -15,7 +15,7 @@ export async function deserializeUser(req, res, next) {
     console.error(e);
     const error = jwtErrorHandles.find(({message}) => message === e.message);
     if (error) {
-      res.status(error.statusCode).redirect("/");
+      res.redirect(error.statusCode,"/");
     } else {
       res.status(500).send("Server Error");
     }
