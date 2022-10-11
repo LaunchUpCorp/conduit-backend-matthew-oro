@@ -29,7 +29,7 @@ export const errorHandles = [
     statusCode: 403
   }
 ]
-const jwtErrorHandles = [
+export const jwtErrorHandles = [
   {
     message: "jwt malformed",
     statusCode: 403
