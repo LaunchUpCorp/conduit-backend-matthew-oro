@@ -59,7 +59,7 @@ describe("Integration tests for loging in user - POST API route for /api/users/l
         testInfo: test,
         endpoint: "/api/users/login",
         requestType: "POST",
-        statusCode: 403,
+        statusCode: 401,
         error: "Invalid credentials",
       };
       await invalidPayloadTest(testOptions);
@@ -75,7 +75,7 @@ describe("Integration tests for loging in user - POST API route for /api/users/l
         testInfo: test,
         endpoint: "/api/users/login",
         requestType: "POST",
-        statusCode: 403,
+        statusCode: 401,
         error: "Invalid credentials",
       };
       await invalidPayloadTest(testOptions);
