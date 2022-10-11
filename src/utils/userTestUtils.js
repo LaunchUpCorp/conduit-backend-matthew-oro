@@ -1,4 +1,5 @@
-import { request, app } from "../../src/utils/integrationTestSetup";
+import { request, app } from "./integrationTestSetup";
+import jwt from "jsonwebtoken";
 
 export async function registerUserTest(testInfo) {
   try {
@@ -154,4 +155,12 @@ export async function lognUserTest(testInfo) {
   } catch (e) {
     console.error(e);
   }
+}
+export async function createExpiredToken({ user }) {
+  const { password, ...jwtPayload } = user;
+  const token = jwt.sign(jwtPayload, process.env.PRIVATE_KEY, {
+    algorithm: "RS256",
+    expiresIn: "-1h",
+  });
+  return token;
 }
