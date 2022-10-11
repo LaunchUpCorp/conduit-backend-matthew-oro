@@ -27,7 +27,7 @@ describe("Integration tests for loging in user - POST API route for /api/users/l
         password: registerTest.user.password,
       },
     };
-    it("POST /api/users/login - success - return status 201 and user object", async () =>
+    it("POST /api/users/login - success - return status 200 and user object", async () =>
       await loginUserTest(loginTest));
   });
   describe("Invalid POST request", () => {
