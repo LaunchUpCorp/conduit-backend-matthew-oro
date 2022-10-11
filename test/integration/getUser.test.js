@@ -39,13 +39,13 @@ describe("Integration tests for requesting current user data - GET API route for
     );
     it("Empty authorization header - return status 403 and throw error", async () => {
       const testOptions = {
-        testInfo: test,
+        header: null,
         endpoint: "/api/users",
         requestType: "GET",
         statusCode: 403,
-        error: "Authorization header empty",
+        redirect: "/",
       };
-      await invalidPayloadTest(testOptions);
+      await invalidTokenTest(testOptions);
     });
     it("Invalid jwt token  - return status 403, throw error, and redirect", async () => {
       const testOptions = {
@@ -53,7 +53,6 @@ describe("Integration tests for requesting current user data - GET API route for
         endpoint: "/api/users",
         requestType: "GET",
         statusCode: 403,
-        error: "jwt malformed",
         redirect: "/",
       };
       await invalidTokenTest(testOptions);
@@ -64,7 +63,6 @@ describe("Integration tests for requesting current user data - GET API route for
         endpoint: "/api/users",
         requestType: "GET",
         statusCode: 403,
-        error: "jwt expired",
         redirect: "/",
       };
       await invalidTokenTest(testOptions);
