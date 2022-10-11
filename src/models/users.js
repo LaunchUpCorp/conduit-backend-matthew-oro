@@ -43,6 +43,9 @@ export async function createUser(user) {
 
 export async function queryOneUser(email) {
   const user = await UserModel.findOne({ where: { email: email } });
+  if(!user){
+    return null
+  }
   return user.get();
 }
 
