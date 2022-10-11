@@ -12,18 +12,18 @@ app.use(express.json());
 app.use("/api", routes);
 
 describe("Integration tests for requesting current user data - GET API route for /api/users", () => {
+  const userTest = {
+    user: {
+      username: "cool",
+      email: "cool@cool.cool",
+      password: "1coolword",
+    },
+  };
+  beforeAll(async () => (userTest.user.token = await getTestToken(userTest)));
+  afterAll(async () => await destroyUser(userTest.user.email));
   describe("Valid GET request", () => {
-    const test = {
-      user: {
-        username: "cool",
-        email: "cool@cool.cool",
-        password: "1coolword",
-      },
-    };
-    beforeEach(async () => (test.user.token = await getTestToken(test)));
-    afterEach(async () => await destroyUser(test.user.email));
     it("GET /api/users - success - return status 201 and user object", async () =>
-      await getUserTest(test));
+      await getUserTest(userTest));
   });
   describe("Invalid GET request", () => {
     it("Empty authorization header - return status 403 and throw error", async () => {
@@ -36,13 +36,25 @@ describe("Integration tests for requesting current user data - GET API route for
       };
       await invalidPayloadTest(testOptions);
     });
-    it("Invalid jwt token  - return status 403 and throw error", async () => {
+    it("Invalid jwt token  - return status 403, throw error, and redirect", async () => {
       const testOptions = {
         header: "Bearer polarbear",
         endpoint: "/api/users",
         requestType: "GET",
         statusCode: 403,
-        error: "Invalid jwt token",
+        error: "jwt malformed",
+        redirect: "/"
+      };
+      await invalidTokenTest(testOptions);
+    });
+    it("Expired jwt token  - return status 403, throw error, and redirect", async () => {
+      const testOptions = {
+        header: "Bearer polarbear",
+        endpoint: "/api/users",
+        requestType: "GET",
+        statusCode: 403,
+        error: "jwt expired",
+        redirect: "/"
       };
       await invalidTokenTest(testOptions);
     });

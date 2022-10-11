@@ -89,6 +89,7 @@ export async function invalidTokenTest({
   payload,
   statusCode,
   error,
+  redirect,
 }) {
   try {
     switch (requestType.toUpperCase()) {
@@ -97,7 +98,7 @@ export async function invalidTokenTest({
           .get(endpoint)
           .set("Authorization", header);
         expect(response.statusCode).toBe(statusCode);
-        expect(response.error.text).toEqual(error);
+        expect(response.headers.location).toContain(redirect);
       }
       case "POST":
         {
@@ -107,6 +108,7 @@ export async function invalidTokenTest({
             .send(payload);
           expect(response.statusCode).toBe(statusCode);
           expect(response.error.text).toEqual(error);
+          expect(response.headers.location).toContain(redirect);
         }
         break;
       case "PUT":
@@ -117,6 +119,7 @@ export async function invalidTokenTest({
             .send(payload);
           expect(response.statusCode).toBe(statusCode);
           expect(response.error.text).toEqual(error);
+          expect(response.headers.location).toContain(redirect);
         }
         break;
       case "DELETE": {
@@ -126,6 +129,7 @@ export async function invalidTokenTest({
           .send(payload);
         expect(response.statusCode).toBe(statusCode);
         expect(response.error.text).toEqual(error);
+        expect(response.headers.location).toContain(redirect);
       }
       default:
         throw new Error("Invalid request type for this test");
