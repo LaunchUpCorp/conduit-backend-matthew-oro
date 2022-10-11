@@ -1,7 +1,7 @@
-import UserModel from "../models/users";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 import { validateBody, validateEmail } from "../utils/validators";
+import { userResponse, getToken } from "../utils/userControllerUtils";
+import { createUser, queryOneUser } from "../models/users";
+import { verifyToken, signToken } from "../utils/jwtUtils";
 
 export async function registerUser(req, res) {
   try {
@@ -14,48 +14,47 @@ export async function registerUser(req, res) {
     if (!user) {
       throw new Error("No payload found");
     }
-    else if (!validateBody(user, expectedPayload)) {
-      throw new Error("Invalid payload format")
+    if (!validateBody(user, expectedPayload)) {
+      throw new Error("Invalid payload format");
     }
-    else if (!validateEmail(user.email)) {
-      throw new Error("Invalid email format")
+    if (!validateEmail(user.email)) {
+      throw new Error("Invalid email format");
     }
-
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(user.password, salt);
-
-    const newUser = await UserModel.create({
-      username: user.username,
-      email: user.email,
-      hash: hash,
-    });
-    const token = signToken(newUser)
-    newUser.setDataValue('token', token)
-    await newUser.save()
-    const responseData = userResponse(newUser)
+    const { password, ...tokenPayload } = user;
+    const token = signToken(tokenPayload);
+    const newUser = await createUser(user);
+    const responseData = userResponse(newUser, token);
     return res.status(201).json(responseData);
   } catch (e) {
     console.error(e);
-    if (e === "No payload found") return res.status(400).send("No payload found")
-    if (e === "Invalid payload format") return res.status(400).send("Invalid payload format, refer to docs for payload format")
-    if (e === "Invalid email format") return res.status(400).send("Invalid email format")
-    return res.status(500).send("Server error")
+    if (
+      e.message === "No payload found" ||
+      e.message === "Invalid payload format" ||
+      e.message === "Invalid email format"
+    )
+      return res.status(400).send(e.message);
+    else {
+      return res.status(500).send("Server error");
+    }
   }
 }
 
-export function signToken(payload) {
-  const { token, createdAt, updatedAt, ...newPayload } = payload.get()
-  return jwt.sign(newPayload, process.env.PRIVATE_KEY, { algorithm: 'RS256' })
-}
-
-export function userResponse(payload) {
-  return {
-    user: {
-      email: payload.getDataValue('email'),
-      token: payload.getDataValue('token'),
-      username: payload.getDataValue('username'),
-      bio: payload.getDataValue('bio'),
-      image: payload.getDataValue('image'),
+export async function getUser(req, res) {
+  try {
+    if (!req.get("Authorization")) {
+      throw new Error("Authorization header empty");
     }
+    const token = getToken(req.get("Authorization"));
+    const decode = verifyToken(token);
+    const user = queryOneUser(decode.email);
+    const responseData = userResponse(user);
+    return res.status(200).json(responseData);
+  } catch (e) {
+    console.error(e);
+    if (e.message === "Authorization header empty")
+      return res.status(403).send(e.message);
+    if (e.name === "JsonWebTokenError")
+      return res.status(403).send("Invalid jwt token");
+    return res.status(500).send("Server error");
   }
 }
