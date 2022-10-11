@@ -2,6 +2,7 @@ import { validateBody, validateEmail } from "../utils/validators";
 import { userResponse, getToken } from "../utils/userControllerUtils";
 import { createUser, queryOneUser } from "../models/users";
 import { verifyToken, signToken } from "../utils/jwtUtils";
+import { errorHandles } from "../utils/errorHandleUtils"
 
 export async function registerUser(req, res) {
   try {
@@ -27,34 +28,27 @@ export async function registerUser(req, res) {
     return res.status(201).json(responseData);
   } catch (e) {
     console.error(e);
-    if (
-      e.message === "No payload found" ||
-      e.message === "Invalid payload format" ||
-      e.message === "Invalid email format"
-    )
-      return res.status(400).send(e.message);
-    else {
-      return res.status(500).send("Server error");
+    const error = errorHandles.find(({ message }) => message === e.message);
+    if (error) {
+      res.status(error.statusCode).send(error.message);
+    } else {
+      res.status(500).send("Server Error");
     }
   }
 }
 
 export async function getUser(req, res) {
   try {
-    if (!req.get("Authorization")) {
-      throw new Error("Authorization header empty");
-    }
-    const token = getToken(req.get("Authorization"));
-    const decode = verifyToken(token);
-    const user = queryOneUser(decode.email);
+    const user = queryOneUser(req.user.email);
     const responseData = userResponse(user);
     return res.status(200).json(responseData);
   } catch (e) {
     console.error(e);
-    if (e.message === "Authorization header empty")
-      return res.status(403).send(e.message);
-    if (e.name === "JsonWebTokenError")
-      return res.status(403).send("Invalid jwt token");
-    return res.status(500).send("Server error");
+    const error = errorHandles.find(({ message }) => message === e.message);
+    if (error) {
+      res.status(error.statusCode).send(error.message);
+    } else {
+      res.status(500).send("Server Error");
+    }
   }
 }
