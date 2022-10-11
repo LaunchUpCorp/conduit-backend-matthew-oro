@@ -61,7 +61,8 @@ export async function loginUser(req, res) {
       throw new Error("Invalid payload format");
     }
     const foundUser = await queryOneUser(user.email);
-    if (!foundUser || !verifyPassword(user, foundUser)) {
+    const match = await verifyPassword(user, foundUser)
+    if (!foundUser || !match) {
       throw new Error("Invalid credentials");
     }
     const token = signToken(foundUser);
