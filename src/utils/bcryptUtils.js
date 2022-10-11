@@ -6,7 +6,8 @@ export async function generateHash(password) {
   return hash;
 }
 
-export async function verifyPassword(password, hash) {
-  const match = await bcrypt.compare(password, hash);
+export async function verifyPassword(requestUser, dbUser) {
+  if (!requestUser || !dbUser) return false;
+  const match = await bcrypt.compare(requestUser.password, dbUser.hash);
   return match;
 }
