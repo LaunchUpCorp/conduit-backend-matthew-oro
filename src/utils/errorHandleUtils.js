@@ -1,15 +1,15 @@
 
 export const errorHandles = [
   {
-    mesage: "No payload found",
+    message: "No payload found",
     statusCode: 400
   },
   {
-    mesage: "Invalid payload format",
+    message: "Invalid payload format",
     statusCode: 400
   },
   {
-    mesage: "Invalid email format",
+    message: "Invalid email format",
     statusCode: 400
   },
   {
