@@ -58,7 +58,7 @@ describe("Integration tests for requesting current user data - GET API route for
       };
       await invalidTokenTest(testOptions);
     });
-    it.only("Expired jwt token  - return status 403, throw error, and redirect", async () => {
+    it("Expired jwt token  - return status 403, throw error, and redirect", async () => {
       const testOptions = {
         header: `Bearer ${expiredTest.token}`,
         endpoint: "/api/users",
