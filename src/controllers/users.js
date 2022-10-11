@@ -2,7 +2,7 @@ import { validateBody, validateEmail } from "../utils/validators";
 import { userResponse } from "../utils/userControllerUtils";
 import { createUser, queryOneUser } from "../models/users";
 import { signToken } from "../utils/jwtUtils";
-import { errorHandles } from "../utils/errorHandleUtils"
+import { errorHandles } from "../utils/errorHandleUtils";
 import { verifyPassword } from "../utils/bcryptUtils";
 
 export async function registerUser(req, res) {
@@ -29,11 +29,8 @@ export async function registerUser(req, res) {
   } catch (e) {
     console.error(e);
     const error = errorHandles.find(({ message }) => message === e.message);
-    if (error) {
-      res.status(error.statusCode).send(error.message);
-    } else {
-      res.status(500).send("Server Error");
-    }
+    if (!error) return res.status(500).send("Server Error");
+    res.status(error.statusCode).send(error.message);
   }
 }
 
@@ -45,16 +42,13 @@ export async function getUser(req, res) {
   } catch (e) {
     console.error(e);
     const error = errorHandles.find(({ message }) => message === e.message);
-    if (error) {
-      res.status(error.statusCode).send(error.message);
-    } else {
-      res.status(500).send("Server Error");
-    }
+    if (!error) return res.status(500).send("Server Error");
+    res.status(error.statusCode).send(error.message);
   }
 }
 
-export async function loginUser(req,res){
-  try{
+export async function loginUser(req, res) {
+  try {
     const { user } = req.body;
     const expectedPayload = {
       email: "string",
@@ -66,21 +60,17 @@ export async function loginUser(req,res){
     if (!validateBody(user, expectedPayload)) {
       throw new Error("Invalid payload format");
     }
-    const foundUser = await queryOneUser(user.email) 
-    if(!foundUser || !verifyPassword(user.password,foundUser.hash)){
-      throw new Error("Invalid credentials")
+    const foundUser = await queryOneUser(user.email);
+    if (!foundUser || !verifyPassword(user, foundUser)) {
+      throw new Error("Invalid credentials");
     }
-    const token = signToken(foundUser)
-    const responseData = userResponse(foundUser,token)
-    res.status(200).send(responseData)
-
-  }catch(e){
-    console.error(e)
+    const token = signToken(foundUser);
+    const responseData = userResponse(foundUser, token);
+    res.status(200).send(responseData);
+  } catch (e) {
+    console.error(e);
     const error = errorHandles.find(({ message }) => message === e.message);
-    if (error) {
-      res.status(error.statusCode).send(error.message);
-    } else {
-      res.status(500).send("Server Error");
-    }
+    if (!error) return res.status(500).send("Server Error");
+    res.status(error.statusCode).send(error.message);
   }
 }
