@@ -39,7 +39,7 @@ export async function registerUser(req, res) {
 
 export async function getUser(req, res) {
   try {
-    const user = queryOneUser(req.user.email);
+    const user = await queryOneUser(req.user.email);
     const responseData = userResponse(user);
     return res.status(200).json(responseData);
   } catch (e) {
