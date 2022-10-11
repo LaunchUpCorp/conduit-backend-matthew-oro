@@ -54,34 +54,33 @@ export async function invalidPayloadTest({
   }
 }
 
-export async function getTestToken(testInfo){
+export async function getTestToken(testInfo) {
   try {
     const response = await request(app).post("/api/users").send(testInfo);
-    return response.body.user.token
+    return response.body.user.token;
   } catch (e) {
     console.error(e);
   }
-
 }
 export async function getUserTest({ user }) {
-    try {
-      const { token } = user;
-      const response = await request(app)
-        .get("/api/users")
-        .set("Authorization", token);
-      expect(response.statusCode).toBe(200);
-      expect(response.body).toMatchObject({
-        user: {
-          email: expect.any(String),
-          token: expect.any(String),
-          username: expect.any(String),
-          bio: expect.toBeOneOf([null, expect.any(String)]),
-          image: expect.toBeOneOf([null, expect.any(String)]),
-        },
-      });
-    } catch (e) {
-      console.error(e);
-    }
+  try {
+    const { token } = user;
+    const response = await request(app)
+      .get("/api/users")
+      .set("Authorization", token);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toMatchObject({
+      user: {
+        email: expect.any(String),
+        token: expect.any(String),
+        username: expect.any(String),
+        bio: expect.toBeOneOf([null, expect.any(String)]),
+        image: expect.toBeOneOf([null, expect.any(String)]),
+      },
+    });
+  } catch (e) {
+    console.error(e);
+  }
 }
 export async function invalidTokenTest({
   header,
@@ -131,6 +130,23 @@ export async function invalidTokenTest({
       default:
         throw new Error("Invalid request type for this test");
     }
+  } catch (e) {
+    console.error(e);
+  }
+}
+export async function lognUserTest(testInfo) {
+  try {
+    const response = await request(app).post("/api/users/login").send(testInfo);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toMatchObject({
+      user: {
+        email: expect.any(String),
+        token: expect.any(String),
+        username: expect.any(String),
+        bio: expect.toBeOneOf([null, expect.any(String)]),
+        image: expect.toBeOneOf([null, expect.any(String)]),
+      },
+    });
   } catch (e) {
     console.error(e);
   }
