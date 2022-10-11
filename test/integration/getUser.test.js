@@ -3,14 +3,13 @@ import {
   getUserTest,
   invalidPayloadTest,
   invalidTokenTest,
-  registerUserTest,
 } from "../../src/utils/userTestUtils";
 import {
   express,
   routes,
   app,
 } from "../../src/utils/integrationTestSetup";
-import { createUser, destroyUser } from "../../src/models/users";
+import { destroyUser } from "../../src/models/users";
 
 app.use(express.json());
 
