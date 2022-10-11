@@ -4,11 +4,7 @@ import {
   invalidPayloadTest,
   invalidTokenTest,
 } from "../../src/utils/userTestUtils";
-import {
-  express,
-  routes,
-  app,
-} from "../../src/utils/integrationTestSetup";
+import { express, routes, app } from "../../src/utils/integrationTestSetup";
 import { destroyUser } from "../../src/models/users";
 
 app.use(express.json());
@@ -24,7 +20,7 @@ describe("Integration tests for requesting current user data - GET API route for
         password: "1coolword",
       },
     };
-    beforeEach(async () => test.user.token = await getTestToken(test));
+    beforeEach(async () => (test.user.token = await getTestToken(test)));
     afterEach(async () => await destroyUser(test.user.email));
     it("GET /api/users - success - return status 201 and user object", async () =>
       await getUserTest(test));
