@@ -85,7 +85,6 @@ export async function invalidTokenTest({
       const response = await request(app)
         .get(endpoint)
         .set("Authorization", header);
-      console.log(response.error.status)
       expect(response.error.status).toBe(statusCode);
       expect(response.headers.location).toContain(redirect);
     }
