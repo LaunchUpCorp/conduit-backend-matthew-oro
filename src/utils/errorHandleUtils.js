@@ -13,10 +13,6 @@ export const errorHandles = [
     statusCode: 400
   },
   {
-    message: "Authorization header empty",
-    statusCode: 403
-  },
-  {
     message: "jwt malformed",
     statusCode: 403
   },
@@ -26,7 +22,7 @@ export const errorHandles = [
   },
   {
     message: "Invalid credentials",
-    statusCode: 403
+    statusCode: 401
   }
 ]
 export const jwtErrorHandles = [
@@ -36,6 +32,10 @@ export const jwtErrorHandles = [
   },
   {
     message: "jwt expired",
+    statusCode: 403
+  },
+  {
+    message: "Authorization header empty",
     statusCode: 403
   },
 ]
