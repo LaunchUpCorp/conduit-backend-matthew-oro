@@ -52,3 +52,35 @@ export async function getUser(req, res) {
     }
   }
 }
+
+export async function loginUser(req,res){
+  try{
+    const { user } = req.body;
+    const expectedPayload = {
+      email: "string",
+      password: "string",
+    };
+    if (!user) {
+      throw new Error("No payload found");
+    }
+    if (!validateBody(user, expectedPayload)) {
+      throw new Error("Invalid payload format");
+    }
+    const foundUser = await queryOneUser(user.email) 
+    if(!foundUser || !verifyPassword(user.password,foundUser.hash)){
+      throw new Error("Invalid credentials")
+    }
+    const token = signToken(foundUser)
+    const responseData = userResponse(foundUser,token)
+    res.status(200).send(responseData)
+
+  }catch(e){
+    console.error(e)
+    const error = errorHandles.find(({ message }) => message === e.message);
+    if (error) {
+      res.status(error.statusCode).send(error.message);
+    } else {
+      res.status(500).send("Server Error");
+    }
+  }
+}
