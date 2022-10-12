@@ -30,7 +30,7 @@ export async function registerUser(req, res) {
     console.error(e);
     const error = errorHandles.find(({ message }) => message === e.message);
     if (!error) return res.status(500).send("Server Error");
-    res.status(error.statusCode).send(error.message);
+    return res.status(error.statusCode).send(error.message);
   }
 }
 
@@ -43,7 +43,7 @@ export async function getUser(req, res) {
     console.error(e);
     const error = errorHandles.find(({ message }) => message === e.message);
     if (!error) return res.status(500).send("Server Error");
-    res.status(error.statusCode).send(error.message);
+    return res.status(error.statusCode).send(error.message);
   }
 }
 
@@ -72,6 +72,6 @@ export async function loginUser(req, res) {
     console.error(e);
     const error = errorHandles.find(({ message }) => message === e.message);
     if (!error) return res.status(500).send("Server Error");
-    res.status(error.statusCode).send(error.message);
+    return res.status(error.statusCode).send(error.message);
   }
 }
