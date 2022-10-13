@@ -1,5 +1,5 @@
 import { validateBody, validateEmail } from "../utils/validators";
-import { createUser, queryOneUser } from "../utils/userControllerUtils";
+import { createUser, queryOneUser, userPayloadFormat } from "../utils/userControllerUtils";
 import { signToken } from "../utils/jwtUtils";
 import { errorHandles } from "../utils/errorHandleUtils";
 import { verifyPassword } from "../utils/bcryptUtils";
@@ -22,7 +22,12 @@ export async function registerUser(req, res) {
       throw new Error("Invalid email format");
     }
     const newUser = await createUser(user);
-    return res.status(201).json(newUser);
+    newUser.token = signToken({
+      email: newUser.email,
+      username: newUser.username,
+    });
+    const userPayload = userPayloadFormat(newUser);
+    return res.status(201).json(userPayload);
   } catch (e) {
     console.error(e);
     const error = errorHandles.find(({ message }) => message === e.message);
@@ -57,13 +62,16 @@ export async function loginUser(req, res) {
       throw new Error("Invalid payload format");
     }
     const foundUser = await queryOneUser(user.email);
-    const match = await verifyPassword(user, foundUser)
+    const match = await verifyPassword(user, foundUser);
     if (!foundUser || !match) {
       throw new Error("Invalid credentials");
     }
-    const token = signToken(foundUser);
-    const responseData = userResponse(foundUser, token);
-    res.status(200).send(responseData);
+    foundUser.token = signToken({
+      email: foundUser.email,
+      username: foundUser.username,
+    });
+    const userPayload = userPayloadFormat(foundUser)
+    res.status(200).send(userPayload);
   } catch (e) {
     console.error(e);
     const error = errorHandles.find(({ message }) => message === e.message);
