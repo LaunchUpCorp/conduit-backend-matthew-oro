@@ -1,6 +1,5 @@
 import { validateBody, validateEmail } from "../utils/validators";
-import { userResponse } from "../utils/userControllerUtils";
-import { createUser, queryOneUser } from "../models/users";
+import { createUser, queryOneUser } from "../utils/userControllerUtils";
 import { signToken } from "../utils/jwtUtils";
 import { errorHandles } from "../utils/errorHandleUtils";
 import { verifyPassword } from "../utils/bcryptUtils";
@@ -23,9 +22,7 @@ export async function registerUser(req, res) {
       throw new Error("Invalid email format");
     }
     const newUser = await createUser(user);
-    const token = signToken(newUser);
-    const responseData = userResponse(newUser, token);
-    return res.status(201).json(responseData);
+    return res.status(201).json(newUser);
   } catch (e) {
     console.error(e);
     const error = errorHandles.find(({ message }) => message === e.message);
@@ -37,8 +34,7 @@ export async function registerUser(req, res) {
 export async function getUser(req, res) {
   try {
     const user = await queryOneUser(req.user.email);
-    const responseData = userResponse(user);
-    return res.status(200).json(responseData);
+    return res.status(200).json(user);
   } catch (e) {
     console.error(e);
     const error = errorHandles.find(({ message }) => message === e.message);
