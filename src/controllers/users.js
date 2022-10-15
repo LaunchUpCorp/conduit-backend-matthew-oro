@@ -7,6 +7,7 @@ import {
 import { signToken } from "../utils/jwtUtils";
 import { errorHandles } from "../utils/errorHandleUtils";
 import { verifyPassword } from "../utils/bcryptUtils";
+import { generateHash } from "../utils/bcryptUtils";
 
 export async function registerUser(req, res) {
   try {
@@ -26,7 +27,9 @@ export async function registerUser(req, res) {
       throw new Error("Invalid email format");
     }
 
-    const newUser = await createUser(user);
+    const hash = await generateHash(user)
+
+    const newUser = await createUser({...user,hash});
 
     const token = signToken(user, "1w");
 
