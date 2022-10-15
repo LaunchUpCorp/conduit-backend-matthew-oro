@@ -1,27 +1,34 @@
-
 import { validateEmail } from "../../src/utils/validators";
 
-describe("invalid email inputs", () => {
-  it("input email without '@' or domain '.com'", () => {
-    const email = "name"
-    const response = validateEmail(email)
-    expect(response).toEqual(false)
+describe("Unit test functionality of validateEmail()", () => {
+  describe("Invalid email inputs", () => {
+    describe("Input without host (@gmail) or domain (.com)", () => {
+      it("should return false", () => {
+        const valid = validateEmail("myEmail")
+
+        expect(valid).toBe(false)
+      })
+    })
+    describe("Input with host (@gmail) but without domain (.com)", () => {
+      it("should return false", () => {
+        const valid = validateEmail("myEmail@gmail")
+
+        expect(valid).toBe(false)
+      })
+    })
+    describe("Input without host (@gmail) but with domain (.com)", () => {
+      it("should return false", () => {
+        const valid = validateEmail("myEmail.com")
+
+        expect(valid).toBe(false)
+      })
+    })
   })
-  it("input email with '@' but without domain '.com'", () => {
-    const email = "name@gmail"
-    const response = validateEmail(email)
-    expect(response).toEqual(false)
-  })
-  it("input email without '@' but with domain '.com'", () => {
-    const email = "name.com"
-    const response = validateEmail(email)
-    expect(response).toEqual(false)
-  })
-})
-describe("valid email input", () => {
-  it("input gmail email exapmple account", () => {
-    const email = "name@gmail.com"
-    const response = validateEmail(email)
-    expect(response).toEqual(true)
+  describe("Valid email input", () => {
+    it("should return true", () => {
+      const valid = validateEmail("myEmail@gmail.com")
+
+      expect(valid).toBe(true)
+    })
   })
 })
