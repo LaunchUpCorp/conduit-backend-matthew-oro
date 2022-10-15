@@ -1,7 +1,9 @@
 import { validateBody, validateEmail } from "../utils/validators";
-import { userResponse, getToken } from "../utils/userControllerUtils";
+import { userResponse } from "../utils/userControllerUtils";
 import { createUser, queryOneUser } from "../models/users";
-import { verifyToken, signToken } from "../utils/jwtUtils";
+import { signToken } from "../utils/jwtUtils";
+import { errorHandles } from "../utils/errorHandleUtils";
+import { verifyPassword } from "../utils/bcryptUtils";
 
 export async function registerUser(req, res) {
   try {
@@ -20,41 +22,56 @@ export async function registerUser(req, res) {
     if (!validateEmail(user.email)) {
       throw new Error("Invalid email format");
     }
-    const { password, ...tokenPayload } = user;
-    const token = signToken(tokenPayload);
     const newUser = await createUser(user);
+    const token = signToken(newUser);
     const responseData = userResponse(newUser, token);
     return res.status(201).json(responseData);
   } catch (e) {
     console.error(e);
-    if (
-      e.message === "No payload found" ||
-      e.message === "Invalid payload format" ||
-      e.message === "Invalid email format"
-    )
-      return res.status(400).send(e.message);
-    else {
-      return res.status(500).send("Server error");
-    }
+    const error = errorHandles.find(({ message }) => message === e.message);
+    if (!error) return res.status(500).send("Server Error");
+    return res.status(error.statusCode).send(error.message);
   }
 }
 
 export async function getUser(req, res) {
   try {
-    if (!req.get("Authorization")) {
-      throw new Error("Authorization header empty");
-    }
-    const token = getToken(req.get("Authorization"));
-    const decode = verifyToken(token);
-    const user = queryOneUser(decode.email);
+    const user = await queryOneUser(req.user.email);
     const responseData = userResponse(user);
     return res.status(200).json(responseData);
   } catch (e) {
     console.error(e);
-    if (e.message === "Authorization header empty")
-      return res.status(403).send(e.message);
-    if (e.name === "JsonWebTokenError")
-      return res.status(403).send("Invalid jwt token");
-    return res.status(500).send("Server error");
+    const error = errorHandles.find(({ message }) => message === e.message);
+    if (!error) return res.status(500).send("Server Error");
+    return res.status(error.statusCode).send(error.message);
+  }
+}
+
+export async function loginUser(req, res) {
+  try {
+    const { user } = req.body;
+    const expectedPayload = {
+      email: "string",
+      password: "string",
+    };
+    if (!user) {
+      throw new Error("No payload found");
+    }
+    if (!validateBody(user, expectedPayload)) {
+      throw new Error("Invalid payload format");
+    }
+    const foundUser = await queryOneUser(user.email);
+    const match = await verifyPassword(user, foundUser)
+    if (!foundUser || !match) {
+      throw new Error("Invalid credentials");
+    }
+    const token = signToken(foundUser);
+    const responseData = userResponse(foundUser, token);
+    res.status(200).send(responseData);
+  } catch (e) {
+    console.error(e);
+    const error = errorHandles.find(({ message }) => message === e.message);
+    if (!error) return res.status(500).send("Server Error");
+    return res.status(error.statusCode).send(error.message);
   }
 }

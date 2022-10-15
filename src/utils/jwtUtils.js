@@ -1,7 +1,11 @@
 import jwt from "jsonwebtoken";
 
 export function signToken(payload) {
-  const signed = jwt.sign(payload, process.env.PRIVATE_KEY, {
+  const tokenPayload = {
+    username: payload.username,
+    email: payload.email
+  }
+  const signed = jwt.sign(tokenPayload, process.env.PRIVATE_KEY, {
     algorithm: "RS256", expiresIn: '1w'
   });
   return signed;

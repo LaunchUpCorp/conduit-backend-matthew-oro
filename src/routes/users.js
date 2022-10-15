@@ -1,8 +1,10 @@
 import { Router } from "express";
 const router = Router();
-import { registerUser, getUser } from "../controllers/users";
+import { registerUser, getUser, loginUser } from "../controllers/users";
+import { deserializeUser } from "../middleware/deserializeUser";
 
 router.post("/", registerUser);
-router.get("/", getUser);
+router.post("/login", loginUser);
+router.get("/", deserializeUser, getUser);
 
 export default router;
