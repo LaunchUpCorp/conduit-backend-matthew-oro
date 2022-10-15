@@ -28,7 +28,7 @@ export async function registerUser(req, res) {
 
     const newUser = await createUser(user);
 
-    const token = signToken(user);
+    const token = signToken(user, "1w");
 
     const userPayload = userPayloadFormat({ ...newUser, token });
 
@@ -47,7 +47,7 @@ export async function registerUser(req, res) {
 export async function getUser(req, res) {
   const user = await queryOneUser(req.user.email);
 
-  const token = signToken(user);
+  const token = signToken(user,"1w");
 
   const userPayload = userPayloadFormat({ ...user, token });
 
@@ -76,7 +76,7 @@ export async function loginUser(req, res) {
       throw new Error("Invalid credentials");
     }
 
-    const token = signToken(foundUser);
+    const token = signToken(foundUser, "1w");
 
     const userPayload = userPayloadFormat({ ...foundUser, token });
 
