@@ -1,19 +1,19 @@
 import UserModel from "../models/users";
-import { generateHash } from "../utils/bcryptUtils";
-
-export async function destroyUser(email) {
-  await UserModel.destroy({ where: { email: email } });
-}
 
 export async function createUser(user) {
-  const hash = await generateHash(user.password);
-  const newUser = await UserModel.create({
-    email: user.email,
-    username: user.username,
-    hash: hash,
-  });
-  const { createdAt, updatedAt, ...newUserPayload } = newUser.get()
+  try{
+    const newUser = await UserModel.create({
+      email: user.email,
+      username: user.username,
+      hash: user.hash,
+    });
+    const { createdAt, updatedAt, ...newUserPayload } = newUser.get()
   return newUserPayload
+
+  }catch(e){
+    console.error(e)
+    return null
+  }
 }
 
 export async function queryOneUser(email) {
