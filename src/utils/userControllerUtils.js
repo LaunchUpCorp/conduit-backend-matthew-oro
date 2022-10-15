@@ -1,4 +1,3 @@
-import { Promise } from "sequelize";
 import UserModel from "../models/users";
 import { generateHash } from "../utils/bcryptUtils";
 
@@ -7,16 +6,21 @@ export async function destroyUser(email) {
 }
 
 export async function createUser(user) {
-  const { password, ...insert } = user;
-  insert.hash = await generateHash(user.password);
-  const newUser = await UserModel.create(insert);
-  return newUser;
+  const hash = await generateHash(user.password);
+  const newUser = await UserModel.create({
+    email: user.email,
+    username: user.username,
+    hash: hash,
+  });
+  const { createdAt, updatedAt, ...newUserPayload } = newUser.get()
+  return newUserPayload
 }
 
 export async function queryOneUser(email) {
   try {
-    const user = await UserModel.findOne({ where: { email: email } }).get();
-    return user;
+    const user = await UserModel.findOne({ where: { email: email } });
+    const { createdAt, updatedAt, ...userPayload } = user.get()
+    return userPayload;
   } catch (e) {
     console.error(e);
     return null;
