@@ -12,9 +12,10 @@
     "dev": "set env NODE_ENV=development & nodemon src/index.js",
     "test:unit": "jest test/unit",
     "test:integration": "jest test/integration",
-    "test": "npm run test:unit && npm run test:integration",
-    "test:async": "jest test/unit --runInBand --detectOpenHandles && jest test/integration --runInBand --detectOpenHandles",
-    "test:silent": "jest test/unit --silent && jest test/integration --silent --runInBand --detectOpenHandles"
+    "test:e2e": "jest test/end-to-end",
+    "test": "jest .",
+    "test:async": "jest . --runInBand --detectOpenHandles --coverage",
+    "test:silent": "jest . --runInBand --detectOpenHandles --silent --coverage"
   },
   "repository": {
     "type": "git",
