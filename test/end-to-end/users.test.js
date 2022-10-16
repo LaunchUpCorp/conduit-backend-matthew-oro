@@ -43,7 +43,7 @@ describe("test user routes", () => {
 
         expect(body).toEqual(userPayload);
 
-        expect(generateHashMock).toHaveBeenCalledWith(createUserInput.user);
+        expect(generateHashMock).toHaveBeenCalledWith(createUserInput.user.password);
 
         expect(createUserMock).toHaveBeenCalledWith({
           ...createUserInput.user,
