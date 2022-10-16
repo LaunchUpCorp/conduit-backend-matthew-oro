@@ -27,9 +27,9 @@ export async function registerUser(req, res) {
       throw new Error("Invalid email format");
     }
 
-    const hash = await generateHash(user)
+    const hash = await generateHash(user.password)
 
-    const newUser = await createUser({...user,hash});
+    const newUser = await createUser({ ...user, hash });
 
     const token = signToken(user, "1w");
 
@@ -50,7 +50,7 @@ export async function registerUser(req, res) {
 export async function getUser(req, res) {
   const user = await queryOneUser(req.user.email);
 
-  const token = signToken(user,"1w");
+  const token = signToken(user, "1w");
 
   const userPayload = userPayloadFormat({ ...user, token });
 
