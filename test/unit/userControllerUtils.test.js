@@ -1,33 +1,22 @@
-import { userResponse, getToken } from "../../src/utils/userControllerUtils";
+import { userPayloadFormat, getToken } from "../../src/utils/userControllerUtils";
+import { dbPayload, userPayload } from "../utils/testValues";
 
-describe("input tests on userResponse function", () => {
-  it("passed payload - return expected user object", () => {
-    const testObj = {
-      time: 49,
-      email: "good@good.good",
-      bio: "Im not cool",
-      image: null,
-      birthday: null,
-      food: "mango",
-      username: "icecream"
-    };
-    const token = "ticket";
-    const response = userResponse(testObj, token);
-    expect(response).toMatchObject({
-      user: {
-        email: expect.any(String),
-        username: expect.any(String),
-        bio: expect.toBeOneOf([null, expect.any(String)]),
-        image: expect.toBeOneOf([null, expect.any(String)]),
-      },
+describe("Unit test of userPayloadFormat()", () => {
+  describe("Given database object and token to format", () => {
+    it("should return formatted user payload response", () => {
+      const token = "jwt.token";
+      const test = userPayloadFormat({ ...dbPayload, token });
+
+      expect(test).toEqual(userPayload);
     });
   });
 });
-describe("unit test on getToken function", () => {
-  it("get value after white space", () => {
-    const expected = "SentToken"
-    const test = `Bearer ${expected}`
-    const response = getToken(test)
-    expect(response).toEqual(expected)
-  })
-})
+describe("Unit test of getToken()", () => {
+  describe("Given string with 2 words with white space", () => {
+    it("should return the respective second word", () => {
+      const test = getToken("Bearer token");
+
+      expect(test).toEqual("token");
+    });
+  });
+});

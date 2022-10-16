@@ -13,11 +13,8 @@ export async function deserializeUser(req, res, next) {
     return next();
   } catch (e) {
     console.error(e);
-    const error = jwtErrorHandles.find(({message}) => message === e.message);
-    if (error) {
-      res.redirect(error.statusCode,"/");
-    } else {
-      res.status(500).send("Server Error");
-    }
+    const error = jwtErrorHandles.find(({ message }) => message === e.message);
+    if (!error) return res.status(500).send("Server Error");
+    return res.redirect(error.statusCode, "/");
   }
 }

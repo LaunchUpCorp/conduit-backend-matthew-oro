@@ -10,17 +10,15 @@ export function validateBody(reqBody, expected) {
     }
     if (expected[objKey].split(" ").length > 1) {
       const keyType = expected[objKey].split(" ");
-      if (keyType.includes("null") && reqBody[objKey] !== null) {
-        return true;
-      }
-      if (!keyType.includes(typeof objKey)) {
+      if (keyType.includes("null") &&!keyType.includes(typeof reqBody[objKey]) && reqBody[objKey] !== null) {
         return true;
       }
     }
-    if (
-      typeof reqBody[objKey] !== expected[objKey] &&
+    else if (
+      typeof(reqBody[objKey]) !== expected[objKey] &&
       reqBody[objKey] !== null
     ) {
+      console.log("LAST",typeof reqBody[objKey])
       return true;
     }
   });
@@ -29,6 +27,7 @@ export function validateBody(reqBody, expected) {
   }
   return true;
 }
+
 export function validateEmail(email){
   const regex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
   return regex.test(email)
