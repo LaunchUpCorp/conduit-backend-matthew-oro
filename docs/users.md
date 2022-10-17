@@ -179,7 +179,6 @@
 | Name | Type |
 |:-----|:-----|
 | `user` *required* | `Object` |
-| `email` | `String or null` |
 | `password` | `String or null` |
 | `bio` | `String or null` |
 | `image` | `String or null` |
