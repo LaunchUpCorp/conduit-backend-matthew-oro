@@ -11,6 +11,9 @@ export async function createUser(user) {
     return newUserPayload;
   } catch (e) {
     console.error(e);
+    if (e.name === "SequelizeUniqueConstraintError") {
+      throw new Error("Payload value(s) not unique");
+    }
     return null;
   }
 }
@@ -28,12 +31,16 @@ export async function queryOneUser(email) {
 
 export async function queryOneUserAndUpdate(email, payload) {
   try {
-    await UserModel.update(payload, { where: { email: email } });
-    const user = await UserModel.findOne({ where: { email: email } });
+    let user = await UserModel.findOne({ where: { email: email } });
+    user.set(payload);
+    await user.save();
     const { createdAt, updatedAt, ...userPayload } = user.get();
     return userPayload;
   } catch (e) {
     console.error(e);
+    if (e.name === "SequelizeUniqueConstraintError") {
+      throw new Error("Payload value(s) not unique");
+    }
     return null;
   }
 }
