@@ -435,7 +435,10 @@ describe("test user routes", () => {
           .spyOn(userControllerUtils, "queryOneUserAndUpdate")
           .mockReturnValueOnce({ ...dbPayload, bio: updateUserInput.user.bio });
 
-        // TODO: create put request payload template
+        const signTokenMock = jest
+          .spyOn(jwtUtils, "signToken")
+          .mockReturnValueOnce("jwt.token");
+
         const { body, statusCode } = await supertest(app)
           .put("/api/users")
           .set("Authorization", `Bearer ${token}`)
@@ -461,6 +464,8 @@ describe("test user routes", () => {
           verifyTokenPayload.email,
           { bio: updateUserInput.user.bio }
         );
+
+        expect(signTokenMock).toHaveBeenCalledWith({...dbPayload, bio: updateUserInput.user.bio}, "1w");
       });
     });
     describe("given user payload the username value is not unique and authentication is valid", () => {
