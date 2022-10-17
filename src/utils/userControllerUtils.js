@@ -47,7 +47,6 @@ export async function queryOneUserAndUpdate(email, payload) {
 
 export function updateUserInputFormat(user) {
   const removeNull = {
-    email: user.email || null,
     username: user.username || null,
     password: user.password || null,
     bio: user.bio || null,
