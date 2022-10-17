@@ -1,30 +1,58 @@
 import UserModel from "../models/users";
 
 export async function createUser(user) {
-  try{
+  try {
     const newUser = await UserModel.create({
       email: user.email,
       username: user.username,
       hash: user.hash,
     });
-    const { createdAt, updatedAt, ...newUserPayload } = newUser.get()
-  return newUserPayload
-
-  }catch(e){
-    console.error(e)
-    return null
+    const { createdAt, updatedAt, ...newUserPayload } = newUser.get();
+    return newUserPayload;
+  } catch (e) {
+    console.error(e);
+    return null;
   }
 }
 
 export async function queryOneUser(email) {
   try {
     const user = await UserModel.findOne({ where: { email: email } });
-    const { createdAt, updatedAt, ...userPayload } = user.get()
+    const { createdAt, updatedAt, ...userPayload } = user.get();
     return userPayload;
   } catch (e) {
     console.error(e);
     return null;
   }
+}
+
+export async function queryOneUserAndUpdate(email, payload) {
+  try {
+    await UserModel.update(payload, { where: { email: email } });
+    const user = await UserModel.findOne({ where: { email: email } });
+    const { createdAt, updatedAt, ...userPayload } = user.get();
+    return userPayload;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
+}
+
+export function updateUserInputFormat(user) {
+  const removeNull = {
+    email: user.email || null,
+    username: user.username || null,
+    password: user.password || null,
+    bio: user.bio || null,
+    image: user.image || null,
+  };
+  Object.keys(removeNull).forEach((key) => {
+    if (!removeNull[key]) {
+      delete removeNull[key];
+    }
+  });
+  if (Object.keys(removeNull).length === 0) return null;
+  return removeNull;
 }
 
 export function userPayloadFormat(payload) {

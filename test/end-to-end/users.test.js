@@ -14,6 +14,7 @@ import {
   invalidLoginPassword,
   invalidLoginEmail,
   verifyTokenPayload,
+  updateUserInput,
 } from "../utils/testValues";
 
 const app = createServer();
@@ -110,9 +111,6 @@ describe("test user routes", () => {
       });
     });
   });
-
-
-
 
   // Login tests
   describe("POST /api/users/login - user login", () => {
@@ -247,9 +245,6 @@ describe("test user routes", () => {
       });
     });
   });
-
-
-
 
   // GET current user data test
   describe("GET /api/users - get current user", () => {
@@ -392,6 +387,245 @@ describe("test user routes", () => {
         expect(verifyTokenMock).toThrow();
 
         expect(queryUserMock).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  // PUT current user
+  describe("PUT /api/users - update current user", () => {
+    describe("given user payload and authentication is valid", () => {
+      let token = "";
+      beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
+      it("should return status 200 and user payload", async () => {
+        const mockReq = {
+          get: jest.fn(() => `Bearer ${token}`),
+        };
+        const mockRes = {};
+        const mockNext = jest.fn();
+
+        const verifyTokenMock = jest
+          .spyOn(jwtUtils, "verifyToken")
+          .mockReturnValueOnce(verifyTokenPayload);
+
+        const queryUserAndUpdateMock = jest
+          .spyOn(userControllerUtils, "queryOneUserAndUpdate")
+          .mockReturnValueOnce({ ...dbPayload, bio: updateUserInput.user.bio });
+
+        // TODO: create put request payload template
+        const { body, statusCode } = await supertest(app)
+          .put("/api/users")
+          .set("Authorization", `Bearer ${token}`)
+          .send(updateUserInput);
+
+        await deserializeUser(mockReq, mockRes, mockNext);
+
+        expect(statusCode).toBe(200);
+
+        expect(body).toEqual({
+          user: { ...userPayload.user, bio: updateUserInput.user.bio },
+        });
+
+        // middleware tests
+        expect(mockReq.get).toHaveBeenCalledWith(`Authorization`);
+        expect(mockReq).toEqual({ ...mockReq, user: verifyTokenPayload });
+        expect(mockNext).toHaveBeenCalled();
+        //end of middleware tests
+
+        expect(verifyTokenMock).toHaveBeenCalledWith(token);
+
+        expect(queryUserAndUpdateMock).toHaveBeenCalledWith(
+          verifyTokenPayload.email,
+          { bio: updateUserInput.user.bio }
+        );
+      });
+    });
+    describe("given user payload is empty and authentication is valid", () => {
+      let token = "";
+      beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
+      it("should return status 400", async () => {
+        const mockReq = {
+          get: jest.fn(() => `Bearer ${token}`),
+        };
+        const mockRes = {};
+        const mockNext = jest.fn();
+
+        const verifyTokenMock = jest
+          .spyOn(jwtUtils, "verifyToken")
+          .mockReturnValueOnce(verifyTokenPayload);
+
+        const queryUserAndUpdateMock = jest.spyOn(
+          userControllerUtils,
+          "queryOneUserAndUpdate"
+        );
+
+        const { statusCode } = await supertest(app)
+          .put("/api/users")
+          .set("Authorization", `Bearer ${token}`);
+
+        await deserializeUser(mockReq, mockRes, mockNext);
+
+        expect(statusCode).toBe(400);
+
+        // middleware tests
+        expect(mockReq.get).toHaveBeenCalledWith(`Authorization`);
+        expect(mockReq).toEqual({ ...mockReq, user: verifyTokenPayload });
+        expect(mockNext).toHaveBeenCalled();
+        //end of middleware tests
+
+        expect(verifyTokenMock).toHaveBeenCalledWith(token);
+
+        expect(queryUserAndUpdateMock).not.toHaveBeenCalled();
+      });
+    });
+    describe("given user payload key values are all null and authentication is valid", () => {
+      let token = "";
+      beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
+      it("should return status 400", async () => {
+        const mockReq = {
+          get: jest.fn(() => `Bearer ${token}`),
+        };
+        const mockRes = {};
+        const mockNext = jest.fn();
+
+        const verifyTokenMock = jest
+          .spyOn(jwtUtils, "verifyToken")
+          .mockReturnValueOnce(verifyTokenPayload);
+
+        const queryUserAndUpdateMock = jest.spyOn(
+          userControllerUtils,
+          "queryOneUserAndUpdate"
+        );
+
+        // TODO: add put request payload
+        const { statusCode } = await supertest(app)
+          .put("/api/users")
+          .set("Authorization", `Bearer ${token}`)
+          .send({ user: { ...updateUserInput.user, bio: null } });
+
+        await deserializeUser(mockReq, mockRes, mockNext);
+
+        expect(statusCode).toBe(400);
+
+        // middleware tests
+        expect(mockReq.get).toHaveBeenCalledWith(`Authorization`);
+        expect(mockReq).toEqual({ ...mockReq, user: verifyTokenPayload });
+        expect(mockNext).toHaveBeenCalled();
+        //end of middleware tests
+
+        expect(verifyTokenMock).toHaveBeenCalledWith(token);
+
+        expect(queryUserAndUpdateMock).not.toHaveBeenCalled();
+      });
+    });
+    describe("Authorization header not provided", () => {
+      it("should return 403 and redirect to '/'", async () => {
+        const mockReq = {
+          get: jest.fn(() => null),
+        };
+        const mockRes = {
+          redirect: jest.fn(),
+        };
+        const mockNext = jest.fn();
+
+        const verifyTokenMock = jest.spyOn(jwtUtils, "verifyToken");
+
+        const queryUserAndUpdateMock = jest.spyOn(
+          userControllerUtils,
+          "queryOneUserAndUpdate"
+        );
+
+        const response = await supertest(app).put("/api/users");
+
+        await deserializeUser(mockReq, mockRes, mockNext);
+
+        expect(response.statusCode).toBe(403);
+        expect(response.headers.location).toEqual("/");
+
+        // middleware tests
+        expect(mockReq.get).toHaveBeenCalledWith(`Authorization`);
+        expect(mockNext).not.toHaveBeenCalled();
+        expect(mockRes.redirect).toHaveBeenCalled();
+        //end of middleware tests
+
+        expect(verifyTokenMock).not.toHaveBeenCalled();
+
+        expect(queryUserAndUpdateMock).not.toHaveBeenCalled();
+      });
+    });
+    describe("given invalid jwt token payload format", () => {
+      it("should return 403 and redirect to '/'", async () => {
+        const mockReq = {
+          get: jest.fn(() => "Bearer fake.token"),
+        };
+        const mockRes = {
+          redirect: jest.fn(),
+        };
+        const mockNext = jest.fn();
+
+        const verifyTokenMock = jest.spyOn(jwtUtils, "verifyToken");
+
+        const queryUserAndUpdateMock = jest.spyOn(
+          userControllerUtils,
+          "queryOneUserAndUpdate"
+        );
+
+        const response = await supertest(app)
+          .put("/api/users")
+          .set("Authorization", "Bearer fake.token");
+
+        await deserializeUser(mockReq, mockRes, mockNext);
+
+        expect(response.statusCode).toBe(403);
+        expect(response.headers.location).toEqual("/");
+
+        // middleware tests
+        expect(mockReq.get).toHaveBeenCalledWith("Authorization");
+        expect(mockNext).not.toHaveBeenCalled();
+        expect(mockRes.redirect).toHaveBeenCalled();
+        //end of middleware tests
+
+        expect(verifyTokenMock).toThrow();
+
+        expect(queryUserAndUpdateMock).not.toHaveBeenCalled();
+      });
+    });
+    describe("given expired jwt token", () => {
+      let token = "";
+      beforeAll(() => (token = jwtUtils.signToken(dbPayload, "-1h")));
+      it("should return 403 and redirect to '/'", async () => {
+        const mockReq = {
+          get: jest.fn(() => `Bearer ${token}`),
+        };
+        const mockRes = {
+          redirect: jest.fn(),
+        };
+        const mockNext = jest.fn();
+
+        const verifyTokenMock = jest.spyOn(jwtUtils, "verifyToken");
+
+        const queryUserAndUpdateMock = jest.spyOn(
+          userControllerUtils,
+          "queryOneUserAndUpdate"
+        );
+
+        const response = await supertest(app)
+          .put("/api/users")
+          .set("Authorization", `Bearer ${token}`);
+
+        await deserializeUser(mockReq, mockRes, mockNext);
+
+        expect(response.statusCode).toBe(403);
+        expect(response.headers.location).toEqual("/");
+
+        // middleware tests
+        expect(mockReq.get).toHaveBeenCalledWith("Authorization");
+        expect(mockNext).not.toHaveBeenCalled();
+        expect(mockRes.redirect).toHaveBeenCalled();
+        //end of middleware tests
+
+        expect(verifyTokenMock).toThrow();
+
+        expect(queryUserAndUpdateMock).not.toHaveBeenCalled();
       });
     });
   });

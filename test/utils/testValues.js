@@ -53,3 +53,12 @@ export const verifyTokenPayload = {
   exp: expect.any(Number),
   iat: expect.any(Number),
 };
+export const updateUserInput = {
+  user: {
+    email: null,
+    username: null,
+    password: null,
+    bio: "I love tests",
+    image: null,
+  },
+};
