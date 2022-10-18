@@ -28,6 +28,14 @@ export const errorHandles = [
     message: "Payload value(s) not unique",
     statusCode: 422
   },
+  {
+    message: "query and current user cannot be the same",
+    statusCode: 400
+  },
+  {
+    message: "user query does not exist",
+    statusCode: 404
+  },
 ]
 export const jwtErrorHandles = [
   {
