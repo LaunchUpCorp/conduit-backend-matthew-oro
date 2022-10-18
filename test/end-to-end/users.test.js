@@ -158,7 +158,9 @@ describe("test user routes", () => {
 
         expect(statusCode).toBe(200);
 
-        expect(queryUserMock).toHaveBeenCalledWith(userLoginInput.user.email);
+        expect(queryUserMock).toHaveBeenCalledWith({
+          email: userLoginInput.user.email,
+        });
 
         expect(verifyPasswordMock).toHaveBeenCalledWith(
           userLoginInput.user,
@@ -228,9 +230,9 @@ describe("test user routes", () => {
 
         expect(statusCode).toBe(401);
 
-        expect(queryUserMock).toHaveBeenCalledWith(
-          invalidLoginPassword.user.email
-        );
+        expect(queryUserMock).toHaveBeenCalledWith({
+          email: invalidLoginPassword.user.email,
+        });
 
         expect(verifyPasswordMock).toHaveBeenCalledWith(
           invalidLoginPassword.user,
@@ -256,9 +258,9 @@ describe("test user routes", () => {
 
         expect(statusCode).toBe(401);
 
-        expect(queryUserMock).toHaveBeenCalledWith(
-          invalidLoginEmail.user.email
-        );
+        expect(queryUserMock).toHaveBeenCalledWith({
+          email: invalidLoginEmail.user.email,
+        });
 
         expect(verifyPasswordMock).toHaveBeenCalledWith(
           invalidLoginEmail.user,
@@ -308,7 +310,9 @@ describe("test user routes", () => {
 
         expect(verifyTokenMock).toHaveBeenCalledWith(token);
 
-        expect(queryUserMock).toHaveBeenCalledWith(verifyTokenPayload.email);
+        expect(queryUserMock).toHaveBeenCalledWith({
+          email: verifyTokenPayload.email,
+        });
       });
     });
     describe("Authorization header not provided", () => {
@@ -465,7 +469,10 @@ describe("test user routes", () => {
           { bio: updateUserInput.user.bio }
         );
 
-        expect(signTokenMock).toHaveBeenCalledWith({...dbPayload, bio: updateUserInput.user.bio}, "1w");
+        expect(signTokenMock).toHaveBeenCalledWith(
+          { ...dbPayload, bio: updateUserInput.user.bio },
+          "1w"
+        );
       });
     });
     describe("given user payload the username value is not unique and authentication is valid", () => {
@@ -493,7 +500,6 @@ describe("test user routes", () => {
 
         await deserializeUser(mockReq, mockRes, mockNext);
 
-        console.log(body);
         expect(statusCode).toBe(422);
 
         // middleware tests
