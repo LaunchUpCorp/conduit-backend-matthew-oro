@@ -5,7 +5,6 @@ import {
   queryOneUser,
   queryOneUserAndUpdate,
   userPayloadFormat,
-  getToken
 } from "../utils/userControllerUtils";
 import { signToken } from "../utils/jwtUtils";
 import { errorHandles } from "../utils/errorHandleUtils";
@@ -42,6 +41,7 @@ export async function registerUser(req, res) {
   } catch (e) {
     console.error(e);
 
+
     const error = errorHandles.find(({ message }) => message === e.message);
 
     if (!error) return res.status(500).send("Server Error");
@@ -51,7 +51,7 @@ export async function registerUser(req, res) {
 }
 
 export async function getUser(req, res) {
-  const user = await queryOneUser(req.user.email);
+  const user = await queryOneUser({ email: req.user.email });
 
   const token = signToken(user, "1w");
 
@@ -74,7 +74,7 @@ export async function loginUser(req, res) {
       throw new Error("Invalid payload format");
     }
 
-    const foundUser = await queryOneUser(user.email);
+    const foundUser = await queryOneUser({ email: user.email });
 
     const match = await verifyPassword(user, foundUser);
 
@@ -104,13 +104,15 @@ export async function updateUser(req, res) {
     if (!user) {
       throw new Error("No payload found");
     }
-    const formattedUser = updateUserInputFormat(user)
+    const formattedUser = updateUserInputFormat(user);
     if (!formattedUser) {
       throw new Error("Invalid payload format");
     }
 
-
-    const updatedUser = await queryOneUserAndUpdate(req.user.email, formattedUser);
+    const updatedUser = await queryOneUserAndUpdate(
+      req.user.email,
+      formattedUser
+    );
 
     const token = signToken(updatedUser, "1w");
 
