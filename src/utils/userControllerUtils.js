@@ -18,9 +18,9 @@ export async function createUser(user) {
   }
 }
 
-export async function queryOneUser(email) {
+export async function queryOneUser(payload) {
   try {
-    const user = await UserModel.findOne({ where: { email: email } });
+    const user = await UserModel.findOne({ where: payload });
     const { createdAt, updatedAt, ...userPayload } = user.get();
     return userPayload;
   } catch (e) {
