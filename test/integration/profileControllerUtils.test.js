@@ -2,6 +2,7 @@ import { createUser } from "../../src/utils/userControllerUtils";
 import {
   followProfile,
   unfollowProfile,
+  isFollowing
 } from "../../src/utils/profileControllerUtils";
 import UserModel from "../../src/models/users";
 
@@ -21,12 +22,16 @@ describe("Integration tests for profile controller utils", () => {
     await createUser(user);
   });
   afterAll(async () => {
-    await UserModel.destroy({ where: {
-      email: user.email
-    } });
-    await UserModel.destroy({ where: {
-      email: createFollowing.email
-    } });
+    await UserModel.destroy({
+      where: {
+        email: user.email
+      }
+    });
+    await UserModel.destroy({
+      where: {
+        email: createFollowing.email
+      }
+    });
   });
   describe("Test functionality of followProfile()", () => {
     describe("Given query user exists to follow user", () => {
@@ -80,11 +85,37 @@ describe("Integration tests for profile controller utils", () => {
     });
     describe("Given query user doesnt exist", () => {
       it("should return null", async () => {
-        const isFollowing = await unfollowProfile(user.email, 
+        const isFollowing = await unfollowProfile(user.email,
           "wont@work.atAll",
         );
 
         expect(isFollowing).toBeNull();
+      });
+    });
+  });
+
+  // TODO: create test user/profile for this test
+  describe("Test functionality of isFollowing()", () => {
+    beforeAll(async () => await followProfile(user.email, createFollowing.email))
+    describe("Given current user follows query user", () => {
+      it("should return true", async () => {
+        const isFollowingProfile = await isFollowing(
+          user.email,
+          createFollowing.email
+        );
+
+        expect(isFollowingProfile).toBe(true);
+      });
+    });
+    describe("Given current user does not follow query user", () => {
+      beforeAll(async () => await unfollowProfile(user.email, createFollowing.email))
+      it("should return false", async () => {
+        const isFollowingProfile = await isFollowing(
+          user.email,
+          createFollowing.email
+        );
+
+        expect(isFollowingProfile).toBe(false);
       });
     });
   });
