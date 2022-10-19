@@ -15,7 +15,6 @@ const UserModel = sequelize.define("User", {
   },
   hash: {
     type: DataTypes.STRING,
-    unique: true,
     allowNull: false,
   },
   bio: {

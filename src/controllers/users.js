@@ -104,14 +104,15 @@ export async function updateUser(req, res) {
     if (!user) {
       throw new Error("No payload found");
     }
-    const formattedUser = updateUserInputFormat(user)      
+    const formattedUser = updateUserInputFormat(user)
     if (!formattedUser) {
       throw new Error("Invalid payload format");
     }
 
-    const token = getToken(req.get("Authorization"));
 
     const updatedUser = await queryOneUserAndUpdate(req.user.email, formattedUser);
+
+    const token = signToken(updatedUser, "1w");
 
     const userPayload = userPayloadFormat({ ...updatedUser, token });
 

@@ -44,7 +44,9 @@ describe("test user routes", () => {
 
         expect(body).toEqual(userPayload);
 
-        expect(generateHashMock).toHaveBeenCalledWith(createUserInput.user.password);
+        expect(generateHashMock).toHaveBeenCalledWith(
+          createUserInput.user.password
+        );
 
         expect(createUserMock).toHaveBeenCalledWith({
           ...createUserInput.user,
@@ -85,6 +87,28 @@ describe("test user routes", () => {
         expect(statusCode).toBe(400);
 
         expect(createUserMock).not.toHaveBeenCalled();
+
+        expect(jwtSignTokenMock).not.toHaveBeenCalled();
+      });
+    });
+    describe("Given request payload is valid but email and/or username is not unqiue", () => {
+      it("should return status 422", async () => {
+        const createUserMock = jest
+          .spyOn(userControllerUtils, "createUser")
+          .mockRejectedValueOnce(new Error("Payload value(s) not unique"));
+
+        const jwtSignTokenMock = jest.spyOn(jwtUtils, "signToken");
+
+        const { statusCode } = await supertest(app)
+          .post("/api/users")
+          .send(createUserInput);
+
+        expect(statusCode).toBe(422);
+
+        expect(createUserMock).toHaveBeenCalledWith({
+          ...createUserInput.user,
+          hash: expect.any(String),
+        });
 
         expect(jwtSignTokenMock).not.toHaveBeenCalled();
       });
@@ -411,7 +435,10 @@ describe("test user routes", () => {
           .spyOn(userControllerUtils, "queryOneUserAndUpdate")
           .mockReturnValueOnce({ ...dbPayload, bio: updateUserInput.user.bio });
 
-        // TODO: create put request payload template
+        const signTokenMock = jest
+          .spyOn(jwtUtils, "signToken")
+          .mockReturnValueOnce("jwt.token");
+
         const { body, statusCode } = await supertest(app)
           .put("/api/users")
           .set("Authorization", `Bearer ${token}`)
@@ -436,6 +463,50 @@ describe("test user routes", () => {
         expect(queryUserAndUpdateMock).toHaveBeenCalledWith(
           verifyTokenPayload.email,
           { bio: updateUserInput.user.bio }
+        );
+
+        expect(signTokenMock).toHaveBeenCalledWith({...dbPayload, bio: updateUserInput.user.bio}, "1w");
+      });
+    });
+    describe("given user payload the username value is not unique and authentication is valid", () => {
+      let token = "";
+      beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
+      it("should return status 422", async () => {
+        const mockReq = {
+          get: jest.fn(() => `Bearer ${token}`),
+        };
+        const mockRes = {};
+        const mockNext = jest.fn();
+
+        const verifyTokenMock = jest
+          .spyOn(jwtUtils, "verifyToken")
+          .mockReturnValueOnce(verifyTokenPayload);
+
+        const queryUserAndUpdateMock = jest
+          .spyOn(userControllerUtils, "queryOneUserAndUpdate")
+          .mockRejectedValueOnce(new Error("Payload value(s) not unique"));
+
+        const { statusCode, body } = await supertest(app)
+          .put("/api/users")
+          .set("Authorization", `Bearer ${token}`)
+          .send({ user: { username: "takenUsername" } });
+
+        await deserializeUser(mockReq, mockRes, mockNext);
+
+        console.log(body);
+        expect(statusCode).toBe(422);
+
+        // middleware tests
+        expect(mockReq.get).toHaveBeenCalledWith(`Authorization`);
+        expect(mockReq).toEqual({ ...mockReq, user: verifyTokenPayload });
+        expect(mockNext).toHaveBeenCalled();
+        //end of middleware tests
+
+        expect(verifyTokenMock).toHaveBeenCalledWith(token);
+
+        expect(queryUserAndUpdateMock).toHaveBeenCalledWith(
+          verifyTokenPayload.email,
+          { username: expect.any(String) }
         );
       });
     });

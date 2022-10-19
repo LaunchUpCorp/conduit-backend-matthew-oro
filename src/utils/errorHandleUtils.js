@@ -23,7 +23,11 @@ export const errorHandles = [
   {
     message: "Invalid credentials",
     statusCode: 401
-  }
+  },
+  {
+    message: "Payload value(s) not unique",
+    statusCode: 422
+  },
 ]
 export const jwtErrorHandles = [
   {
