@@ -17,14 +17,14 @@ const FollowModel = sequelize.define("Follow", {
       model: UserModel,
       key: "email",
     },
-    followingId: {
-      type: DataTypes.STRING,
-      allownull: false,
-      unique: true,
-      references: {
-        model: UserModel,
-        key: "email",
-      },
+  },
+  followingId: {
+    type: DataTypes.STRING,
+    allownull: false,
+    unique: true,
+    references: {
+      model: UserModel,
+      key: "email",
     },
   },
 });
@@ -33,13 +33,13 @@ UserModel.belongsToMany(UserModel, {
   through: "Follow",
   foreignKey: "userId",
   as: "followers",
-  onDelete: "CASCADE"
+  onDelete: "CASCADE",
 });
 UserModel.belongsToMany(UserModel, {
   through: "Follow",
   foreignKey: "followingId",
   as: "following",
-  onDelete: "CASCADE"
+  onDelete: "CASCADE",
 });
 
 export default FollowModel;
