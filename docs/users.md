@@ -4,7 +4,7 @@
 
 ### Endpoint: `POST` `/api/users`
 
-### Authentication header not requred
+### Authentication header not required
 
 ### Request Body Type:
 
@@ -61,7 +61,7 @@
 
 ### Endpoint: `POST` `/api/users/login`
 
-### Authentication header not requred
+### Authentication header not required
 
 ### Request Body Type:
 

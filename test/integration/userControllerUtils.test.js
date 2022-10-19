@@ -24,8 +24,6 @@ describe("Integration tests for user controller utils", () => {
     await UserModel.destroy({
       where: { email: "test@test.test" },
     });
-  });
-  afterAll(async () => {
     await UserModel.destroy({
       where: {
         email: createUserInput.user.email,
@@ -46,8 +44,6 @@ describe("Integration tests for user controller utils", () => {
         try {
           const hash = dbPayload.hash;
           const user = await createUser({ ...createUserInput.user, hash });
-
-          expect(user).toThrow();
         } catch (e) {
           expect(e.message).toEqual("Payload value(s) not unique");
         }
@@ -66,14 +62,16 @@ describe("Integration tests for user controller utils", () => {
   describe("Test functionality of queryOneUser()", () => {
     describe("Given valid email that is already stored in the db", () => {
       it("should return corresponding email db payload", async () => {
-        const user = await queryOneUser(createUserInput.user.email);
+        const user = await queryOneUser({ email: createUserInput.user.email });
 
         expect(user).toEqual(dbPayload);
       });
     });
     describe("Given valid email that is not stored in the db", () => {
       it("should cause UserModel to throw error and return null ", async () => {
-        const user = await queryOneUser(invalidLoginEmail.user.email);
+        const user = await queryOneUser({
+          email: invalidLoginEmail.user.email,
+        });
 
         expect(UserModel).toThrow();
         expect(user).toBeNull();
