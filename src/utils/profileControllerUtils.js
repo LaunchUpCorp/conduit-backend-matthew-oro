@@ -34,6 +34,15 @@ export async function unfollowProfile(userEmail, unfollowUserEmail) {
   }
 }
 
+export async function isFollowing(userEmail, profileEmail) {
+  const check = await FollowModel.findOne({
+    where: {
+      userId: userEmail,
+      followingId: profileEmail,
+    },
+  });
+  return !!check;
+}
 export function profilePayloadFormat(followingUser, isFollowing) {
   return {
     profile: {
