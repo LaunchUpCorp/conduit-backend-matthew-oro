@@ -15,7 +15,8 @@
     "test:e2e": "jest test/end-to-end --verbose",
     "test": "jest . --verbose",
     "test:async": "jest . --runInBand --detectOpenHandles --coverage --verbose",
-    "test:silent": "jest . --runInBand --detectOpenHandles --silent --coverage --verbose"
+    "test:silent": "jest . --runInBand --detectOpenHandles --silent --coverage --verbose",
+    "test:screenshot": "jest . --runInBand --detectOpenHandles --silent --coverage"
   },
   "repository": {
     "type": "git",
