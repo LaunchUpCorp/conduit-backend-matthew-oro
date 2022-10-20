@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize-cockroachdb";
 import sequelize from "./index";
+import UserModel from "./users";
 
 const ArticleModel = sequelize.define("Article", {
   id: {
@@ -7,7 +8,15 @@ const ArticleModel = sequelize.define("Article", {
     unique: true,
     primaryKey: true,
     allowNull: false,
-    defaultValue: DataTypes.UUIDV4
+    defaultValue: DataTypes.UUIDV4,
+  },
+  authorId: {
+    type: DataTypes.STRING,
+    allowNull: null,
+    references: {
+      model: UserModel,
+      key: "email",
+    },
   },
   title: {
     type: DataTypes.STRING,
@@ -22,6 +31,12 @@ const ArticleModel = sequelize.define("Article", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+});
+
+UserModel.hasMany(ArticleModel, {
+  foreignKey: "authorId",
+  as: "articles",
+  onDelete: "CASCADE",
 });
 
 export default ArticleModel;
