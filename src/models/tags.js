@@ -1,6 +1,6 @@
 import { DataTypes } from "sequelize-cockroachdb";
 import sequelize from "./index";
-import ArticleModel from "./aticles"
+import ArticleModel from "./articles";
 
 const TagModel = sequelize.define("Tag", {
   id: {
@@ -8,19 +8,25 @@ const TagModel = sequelize.define("Tag", {
     unique: true,
     primaryKey: true,
     allownull: false,
-    defaultValue: DataTypes.UUIDV4
+    defaultValue: DataTypes.UUIDV4,
   },
   articleId: {
-    type: DataTypes.STRING,
-    unique: true,
+    type: DataTypes.UUID,
     allownull: false,
+    references: {
+      model: ArticleModel,
+      key: "id",
+    },
   },
   tag: {
-    type: DataTypes.STRING
-  }
+    type: DataTypes.STRING,
+  },
 });
 
-ArticleModel.hasMany(TagModel, { foreignKey: "articleId", as: "tags"})
-TagModel.belongsTo(ArticleModel)
+ArticleModel.hasMany(TagModel, {
+  foreignKey: "articleId",
+  as: "tags",
+  onDelete: "CASCADE",
+});
 
 export default TagModel;
