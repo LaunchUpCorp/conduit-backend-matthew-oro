@@ -493,7 +493,7 @@ describe("test user routes", () => {
           .spyOn(userControllerUtils, "queryOneUserAndUpdate")
           .mockRejectedValueOnce(new Error("Payload value(s) not unique"));
 
-        const { statusCode, body } = await supertest(app)
+        const { statusCode } = await supertest(app)
           .put("/api/users")
           .set("Authorization", `Bearer ${token}`)
           .send({ user: { username: "takenUsername" } });

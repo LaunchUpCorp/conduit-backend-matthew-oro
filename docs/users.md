@@ -215,7 +215,6 @@
      }
 } 
 ```
-// TODO: add errors for non unique username and email
 ### Errors:
 > #### `StatusCode` `400` - Invalid request body
 >
