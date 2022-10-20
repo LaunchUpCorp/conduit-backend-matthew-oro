@@ -5,6 +5,13 @@
 ### Endpoint: `POST` `/api/profile/:username/follow`
 
 ### Authentication required
+
+ Authentication header Type: 
+| Name | Type |
+|:-----|:-----|
+| `Authorization` | `String` |
+
+### Authentication header example: 
 ```JSON
 {
   "Authorization": "Bearer jwt.token.here"
@@ -46,12 +53,24 @@
 > #### `StatusCode` `422` - Payload value(s) not unqiue
 >
 > The current user already follows the requested profile 
+> #### `StatusCode` `403` - Unauthorized
+>
+> This error will redirect user to homepage. 
+>
+> Authorization header not provided, Expired JWT token, Invalid JWT token
 
 ## Unfollow Profile
 
 ### Endpoint: `DELETE` `/api/profile/:username/follow`
 
 ### Authentication required
+
+ Authentication header Type: 
+| Name | Type |
+|:-----|:-----|
+| `Authorization` | `String` |
+
+### Authentication header example: 
 ```JSON
 {
   "Authorization": "Bearer jwt.token.here"
@@ -93,12 +112,24 @@
 > #### `StatusCode` `422` - Payload value(s) not unqiue
 >
 > The current user already follows the requested profile 
+> #### `StatusCode` `403` - Unauthorized
+>
+> This error will redirect user to homepage. 
+>
+> Authorization header not provided, Expired JWT token, Invalid JWT token
 
 ## Get Profile Data 
 
 ### Endpoint: `GET` `/api/profile/:username`
 
 ### Authentication required
+
+ Authentication header Type: 
+| Name | Type |
+|:-----|:-----|
+| `Authorization` | `String` |
+
+### Authentication header example: 
 ```JSON
 {
   "Authorization": "Bearer jwt.token.here"
@@ -140,3 +171,8 @@
 > #### `StatusCode` `422` - Payload value(s) not unqiue
 >
 > The current user already follows the requested profile 
+> #### `StatusCode` `403` - Unauthorized
+>
+> This error will redirect user to homepage. 
+>
+> Authorization header not provided, Expired JWT token, Invalid JWT token
