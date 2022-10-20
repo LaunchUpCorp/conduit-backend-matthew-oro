@@ -31,3 +31,12 @@ export function validateEmail(email) {
   const regex = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
   return regex.test(email)
 }
+
+export function validateTagList(tags){
+  if(!tags || tags.length === 0){
+    return false
+  }
+  const isValid = tags.some( tag => typeof(tag) === "string" ) 
+  return isValid
+}
+
