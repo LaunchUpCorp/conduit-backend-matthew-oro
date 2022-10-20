@@ -12,7 +12,7 @@ const app = createServer();
 describe("test profile routes", () => {
   // Following User Test
   
-  describe("POST /api/profiles/:username/follow", () => {
+  describe("POST /api/profiles/:username/follow - Follow profile", () => {
     describe("Given the username to follow exists and current user is authenticated", () => {
       let token = "";
       beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
@@ -314,7 +314,7 @@ describe("test profile routes", () => {
   });
 
   // Unfollowing User Test
-  describe("DELETE /api/profiles/:username/follow", () => {
+  describe("DELETE /api/profiles/:username/follow - Unfollowing profile", () => {
     describe("Given the username to unfollow exists and current user is authenticated", () => {
       let token = "";
       beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
@@ -571,7 +571,7 @@ describe("test profile routes", () => {
     });
   });
   // GET Profile Tests
-  describe("GET /api/profiles/:username", () => {
+  describe("GET /api/profiles/:username - Get profile data", () => {
     describe("Given the username to exist and current user is authenticated", () => {
       let token = "";
       beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
