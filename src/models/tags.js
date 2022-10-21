@@ -25,7 +25,12 @@ const TagModel = sequelize.define("Tag", {
 
 ArticleModel.hasMany(TagModel, {
   foreignKey: "articleId",
-  as: "tags",
+  as: "tagList",
+  onDelete: "CASCADE",
+});
+TagModel.belongsTo(ArticleModel, {
+  foreignKey: "articleId",
+  as: "tagList",
   onDelete: "CASCADE",
 });
 
