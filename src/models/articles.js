@@ -21,11 +21,16 @@ const ArticleModel = sequelize.define("Article", {
   title: {
     type: DataTypes.STRING,
     unique: true,
-    allownull: false,
+    allowNull: false,
+  },
+  slug: {
+    type: DataTypes.STRING,
+    unique: true,
+    allowNull: false,
   },
   description: {
     type: DataTypes.STRING,
-    allownull: false,
+    allowNull: false,
   },
   body: {
     type: DataTypes.STRING,
@@ -35,8 +40,9 @@ const ArticleModel = sequelize.define("Article", {
 
 UserModel.hasMany(ArticleModel, {
   foreignKey: "authorId",
-  as: "articles",
+  as: "author",
   onDelete: "CASCADE",
 });
+ArticleModel.belongsTo(UserModel, {foreignKey: "authorId", onDelete: "CASCADE", as:"author"})
 
 export default ArticleModel;
