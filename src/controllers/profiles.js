@@ -15,7 +15,7 @@ export async function handleFollowProfile(req, res) {
     const currentUser = req.user;
     const followingUser = await queryOneUser({ username: req.params.username });
     if (!followingUser) {
-      throw new Error("user query does not exist");
+      throw new Error("query does not exist");
     }
     const isFollowing = await followProfile(
       currentUser.email,
@@ -47,7 +47,7 @@ export async function handleUnfollowProfile(req, res) {
     });
 
     if (!followingUser) {
-      throw new Error("user query does not exist");
+      throw new Error("query does not exist");
     }
 
     const isFollowing = await unfollowProfile(
@@ -73,7 +73,7 @@ export async function handleGetProfile(req, res) {
   try {
     const profileUser = await queryOneUser({ username: req.params.username });
     if(!profileUser){
-      throw new Error("user query does not exist")
+      throw new Error("query does not exist")
     }
 
     const isFollowingProfile = await isFollowing(
