@@ -33,7 +33,7 @@ export const errorHandles = [
     statusCode: 400
   },
   {
-    message: "user query does not exist",
+    message: "query does not exist",
     statusCode: 404
   },
 ]
