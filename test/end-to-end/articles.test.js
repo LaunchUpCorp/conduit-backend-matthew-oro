@@ -5,7 +5,9 @@ import {
   expectArticlePayload,
   articlePayload,
   invalidArticlePayloadFormat,
-  invalidTaglistPayload
+  invalidTaglistPayload,
+  expectQueryArticlePayload,
+  queryArticleDbPayload,
 } from "../utils/articlesTestValue";
 import { verifyTokenPayload, dbPayload } from "../utils/testValues"
 import { deserializeUser } from "../../src/middleware/deserializeUser";
@@ -63,7 +65,7 @@ describe("test article route", () => {
       });
     });
     describe("Given request payload is empty and current user is authenticated", () => {
-      let token =""
+      let token = ""
       beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
       it("should return status 400", async () => {
         //middleware init
@@ -103,7 +105,7 @@ describe("test article route", () => {
       });
     });
     describe("Given invalid payload format", () => {
-      let token =""
+      let token = ""
       beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
       it("should return status 400", async () => {
         //middleware init
@@ -126,7 +128,7 @@ describe("test article route", () => {
           .post("/api/articles")
           .set("Authorization", `Bearer ${token}`)
           .send(invalidArticlePayloadFormat)
-          
+
 
         await deserializeUser(mockReq, mockRes, mockNext);
 
@@ -225,6 +227,46 @@ describe("test article route", () => {
         expect(createArticleMock).toHaveBeenCalledWith(
           verifyTokenPayload.email,
           articleDbPayload
+        );
+      });
+    });
+  });
+  //GET 
+
+  describe("GET /api/articles/:slug - Get queried article", () => {
+    describe("Given article query exists", () => {
+      it("should return status 200 and queried article payload", async () => {
+        const queryOneArticleMock = jest
+          .spyOn(articleControllerUtils, "queryOneArticle")
+          .mockReturnValueOnce(queryArticleDbPayload.article);
+
+        const { body, statusCode } = await supertest(app)
+          .get("/api/articles/slug-slug-slug")
+
+        expect(statusCode).toBe(200);
+
+        expect(body).toEqual(expectQueryArticlePayload);
+        // test for positive signed integer for favoritesCount
+        //expect(body.article.author.favoritesCount).toBePosive()
+
+        expect(queryOneArticleMock).toHaveBeenCalledWith(
+          queryArticleDbPayload.article.slug
+        );
+      });
+    });
+    describe("Given article query does not exist", () => {
+      it("should return status 404", async () => {
+        const queryOneArticleMock = jest
+          .spyOn(articleControllerUtils, "queryOneArticle")
+          .mockReturnValueOnce(null)
+
+        const { statusCode } = await supertest(app)
+          .get("/api/articles/slug-slug-slug")
+
+        expect(statusCode).toBe(404);
+
+        expect(queryOneArticleMock).toHaveBeenCalledWith(
+          queryArticleDbPayload.article.slug
         );
       });
     });
