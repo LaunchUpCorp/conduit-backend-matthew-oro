@@ -31,7 +31,7 @@ export async function createArticle(userEmail, article) {
     return newArticlePayload;
   } catch (e) {
     console.error(e);
-    if (e.name === "SequelizeUniqueContraintError") {
+    if (e.name === "SequelizeUniqueConstraintError") {
       throw new Error("Payload value(s) not unique");
     }
     return null;
@@ -42,6 +42,7 @@ export async function queryOneArticle(slug) {
     const query = await ArticleModel.findOne({
       where: { slug: slug },
       attributes: [
+        "id",
         "slug",
         "title",
         "description",
@@ -82,14 +83,14 @@ export async function queryOneArticle(slug) {
       ],
     });
     const payload = query.get({ plain: true });
-    payload.favoritesCount = payload?.favoritesCount?.length || 0;
+    payload.favoritesCount = payload.favoritesCount.length || 0;
     payload.favorited = false;
-    payload.tagList = payload?.tagList.map(({ tag }) => tag);
+    payload.tagList = payload.tagList.map(({ tag }) => tag);
     payload.author.following = payload.author.following.length > 0;
     return payload;
   } catch (e) {
-    console.error(e)
-    return null
+    console.error(e);
+    return null;
   }
 }
 export function queryOneArticlePayloadFormat(article) {
@@ -112,6 +113,20 @@ export function queryOneArticlePayloadFormat(article) {
       },
     },
   };
+}
+export async function favoriteArticle(userId, articleId) {
+  try {
+    await FavoriteModel.create({
+      userId: userId,
+      articleId: articleId,
+    });
+  } catch (e) {
+    if (e.name === "SequelizeUniqueConstraintError") {
+      throw new Error("Payload value(s) not unique");
+    } else {
+      throw new Error(e);
+    }
+  }
 }
 export function createArticlePayloadFormat(article) {
   return {
