@@ -54,6 +54,7 @@ export const expectQueryArticlePayload = {
 };
 export const queryArticleDbPayload = {
   article: {
+    id: expect.any(String),
     slug: "slug-slug-slug",
     title: "slug Slug sLuG",
     description: "explain slug",
