@@ -32,7 +32,7 @@ const FollowModel = sequelize.define("Follow", {
 UserModel.belongsToMany(UserModel, {
   through: "Follow",
   foreignKey: "userId",
-  as: "followers",
+  as: "follower",
   onDelete: "CASCADE",
 });
 UserModel.belongsToMany(UserModel, {

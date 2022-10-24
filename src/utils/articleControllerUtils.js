@@ -1,16 +1,22 @@
 import ArticleModel from "../models/articles";
 import TagModel from "../models/tags";
 import { validateTagList } from "../utils/validators";
+import UserModel from "../models/users";
+import FollowModel from "../models/follows";
+import FavoriteModel from "../models/favorties";
+import sequelize from "../models";
 
 export async function createArticle(userEmail, article) {
+  const createSlug = titleToSlug(article.title);
   try {
     const newArticle = await ArticleModel.create({
       authorId: userEmail,
       title: article.title,
+      slug: createSlug,
       description: article.description,
       body: article.body,
     });
-    const { createdAt, updatedAt, authorId, id, ...newArticlePayload } =
+    const { createdAt, updatedAt, authorId, id, slug, ...newArticlePayload } =
       newArticle.get();
     if (validateTagList(article.tagList)) {
       const dbTag = article.tagList.map((tag) => {
@@ -20,7 +26,7 @@ export async function createArticle(userEmail, article) {
         };
       });
       const tagListDb = await TagModel.bulkCreate(dbTag);
-      newArticlePayload.tagList = tagListDb.map(tagList => tagList.tag)
+      newArticlePayload.tagList = tagListDb.map((tagList) => tagList.tag);
     }
     return newArticlePayload;
   } catch (e) {
@@ -31,7 +37,83 @@ export async function createArticle(userEmail, article) {
     return null;
   }
 }
-export function articlePayloadFormat(article) {
+export async function queryOneArticle(slug) {
+  try {
+    const query = await ArticleModel.findOne({
+      where: { slug: slug },
+      attributes: [
+        "slug",
+        "title",
+        "description",
+        "body",
+        "updatedAt",
+        "createdAt",
+      ],
+      include: [
+        {
+          model: TagModel,
+          as: "tagList",
+          attributes: ["tag"],
+          required: false,
+        },
+        {
+          model: UserModel,
+          as: "favoritesCount",
+          attributes: ["email"],
+          required: false,
+        },
+        {
+          model: UserModel,
+          as: "author",
+          attributes: ["username", "bio", "image"],
+          required: false,
+          include: [
+            {
+              model: UserModel,
+              attributes: ["email"],
+              as: "following",
+              required: false,
+              through: {
+                attributes: [],
+              },
+            },
+          ],
+        },
+      ],
+    });
+    const payload = query.get({ plain: true });
+    payload.favoritesCount = payload?.favoritesCount?.length || 0;
+    payload.favorited = false;
+    payload.tagList = payload?.tagList.map(({ tag }) => tag);
+    payload.author.following = payload.author.following.length > 0;
+    return payload;
+  } catch (e) {
+    console.error(e)
+    return null
+  }
+}
+export function queryOneArticlePayloadFormat(article) {
+  return {
+    article: {
+      slug: article.slug,
+      title: article.title,
+      description: article.description,
+      body: article.body,
+      tagList: article.tagList,
+      createdAt: article.createdAt,
+      updatedAt: article.updatedAt,
+      favorited: article.favorited,
+      favoritesCount: article.favoritesCount,
+      author: {
+        username: article.author.username,
+        bio: article.author.bio,
+        image: article.author.image,
+        following: article.author.following,
+      },
+    },
+  };
+}
+export function createArticlePayloadFormat(article) {
   return {
     article: {
       title: article.title,
@@ -40,4 +122,8 @@ export function articlePayloadFormat(article) {
       tagList: article.tagList,
     },
   };
+}
+export function titleToSlug(title) {
+  const slug = title.toLowerCase().replace(/ /g, "-");
+  return slug;
 }

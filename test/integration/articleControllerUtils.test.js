@@ -1,8 +1,12 @@
 import {
   articleDbPayload,
   expectArticlePayload,
+  expectQueryArticlePayload,
 } from "../utils/articlesTestValue";
-import { createArticle } from "../../src/utils/articleControllerUtils";
+import {
+  createArticle,
+  queryOneArticle,
+} from "../../src/utils/articleControllerUtils";
 import { createUser } from "../../src/utils/userControllerUtils";
 import UserModel from "../../src/models/users";
 
@@ -11,7 +15,7 @@ const user = {
   username: "person",
   hash: "(Salt)y(Hash)browns",
 };
-describe("Integration tests for profile controller utils", () => {
+describe("Integration tests for article controller utils", () => {
   beforeAll(async () => {
     await createUser(user);
   });
@@ -41,7 +45,8 @@ describe("Integration tests for profile controller utils", () => {
     });
     describe("Given valid body payload with invalid tagList", () => {
       it("should return article db payload", async () => {
-        const { tagList, ...articleDbPayloadCase2 } = expectArticlePayload.article;
+        const { tagList, ...articleDbPayloadCase2 } =
+          expectArticlePayload.article;
         const newArticle = await createArticle(user.email, {
           ...articleDbPayload,
           title: "newer article",
@@ -57,6 +62,21 @@ describe("Integration tests for profile controller utils", () => {
         } catch (e) {
           expect(e.message).toEqual("Payload value(s) not unique");
         }
+      });
+    });
+  });
+
+  describe("Test functionality of queryOneArticlePayload()", () => {
+    describe("Given slug query exists", () => {
+      it("should return query one article db payload", async () => {
+        const query = await queryOneArticle(articleDbPayload.slug);
+        expect(query).toEqual(expectQueryArticlePayload.article);
+      });
+    });
+    describe("Given slug query does not exist ", () => {
+      it("should return null", async () => {
+        const query = await queryOneArticle("i-don't-exist");
+        expect(query).toBeNull();
       });
     });
   });

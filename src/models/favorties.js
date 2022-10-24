@@ -1,8 +1,9 @@
 import { DataTypes } from "sequelize-cockroachdb";
 import sequelize from "./index";
 import ArticleModel from "./articles";
+import UserModel from "./users";
 
-const TagModel = sequelize.define("Tag", {
+const FavoriteModel = sequelize.define("Favorite", {
   id: {
     type: DataTypes.UUID,
     unique: true,
@@ -18,20 +19,27 @@ const TagModel = sequelize.define("Tag", {
       key: "id",
     },
   },
-  tag: {
+  userId: {
     type: DataTypes.STRING,
+    allownull: false,
+    references: {
+      model: UserModel,
+      key: "email",
+    },
   },
 });
 
-ArticleModel.hasMany(TagModel, {
-  foreignKey: "articleId",
-  as: "tagList",
+UserModel.belongsToMany(ArticleModel, {
+  through: "Favorite",
+  as: "isFavorite",
+  foreignKey: "userId",
   onDelete: "CASCADE",
 });
-TagModel.belongsTo(ArticleModel, {
+ArticleModel.belongsToMany(UserModel, {
+  through: "Favorite",
+  as: "favoritesCount",
   foreignKey: "articleId",
-  as: "tagList",
   onDelete: "CASCADE",
 });
 
-export default TagModel;
+export default FavoriteModel;
