@@ -11,14 +11,6 @@ const FavoriteModel = sequelize.define("Favorite", {
     allownull: false,
     defaultValue: DataTypes.UUIDV4,
   },
-  articleId: {
-    type: DataTypes.UUID,
-    allownull: false,
-    references: {
-      model: ArticleModel,
-      key: "id",
-    },
-  },
   userId: {
     type: DataTypes.STRING,
     allownull: false,
@@ -27,16 +19,24 @@ const FavoriteModel = sequelize.define("Favorite", {
       key: "email",
     },
   },
+  articleId: {
+    type: DataTypes.UUID,
+    allownull: false,
+    references: {
+      model: ArticleModel,
+      key: "id",
+    },
+  },
 });
 
 UserModel.belongsToMany(ArticleModel, {
-  through: "Favorite",
+  through: FavoriteModel,
   as: "isFavorite",
   foreignKey: "userId",
   onDelete: "CASCADE",
 });
 ArticleModel.belongsToMany(UserModel, {
-  through: "Favorite",
+  through: FavoriteModel,
   as: "favoritesCount",
   foreignKey: "articleId",
   onDelete: "CASCADE",

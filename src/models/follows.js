@@ -21,7 +21,6 @@ const FollowModel = sequelize.define("Follow", {
   followingId: {
     type: DataTypes.STRING,
     allownull: false,
-    unique: true,
     references: {
       model: UserModel,
       key: "email",
