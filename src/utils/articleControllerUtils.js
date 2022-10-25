@@ -124,7 +124,26 @@ export async function favoriteArticle(userId, articleId) {
     if (e.name === "SequelizeUniqueConstraintError") {
       throw new Error("Payload value(s) not unique");
     } else {
-      throw new Error(e);
+      throw e;
+    }
+  }
+}
+export async function unFavoriteArticle(userId, articleId) {
+  try {
+    const destroy = await FavoriteModel.destroy({
+      where: {
+        userId: userId,
+        articleId: articleId,
+      },
+    });
+    if (destroy === 0) {
+      throw new Error("No rows destroyed");
+    }
+  } catch (e) {
+    if (e.name === "SequelizeUniqueConstraintError") {
+      throw new Error("Payload value(s) not unique");
+    } else {
+      throw e;
     }
   }
 }
