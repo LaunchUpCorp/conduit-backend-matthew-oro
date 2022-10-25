@@ -25,7 +25,7 @@ export async function unfollowProfile(userEmail, unfollowUserEmail) {
       },
     });
     if (destroy === 0) {
-      throw new Error("No user unfollowed");
+      throw new Error("No rows destroyed");
     }
     return false;
   } catch (e) {
