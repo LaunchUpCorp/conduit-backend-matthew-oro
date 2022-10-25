@@ -233,3 +233,81 @@ Authentication header Type:
 > This error will redirect user to homepage. 
 >
 > Authorization header not provided, Expired JWT token, Invalid JWT token
+
+
+## Unfavorite Article
+
+### Endpoint: `DELETE` `/api/articles/:slug/favorite`
+
+### Authentication required
+
+ Authentication header Type: 
+| Name | Type |
+|:-----|:-----|
+| `Authorization` | `String` |
+
+### Authentication header example: 
+```JSON
+{
+  "Authorization": "Bearer jwt.token.here"
+}
+```
+### Params:
+
+| Name | Type |
+|:-----|:-----|
+| `slug` *required*| `String` |
+
+### Response Body Type:
+
+| Name             | Type             |
+| :--------------- | :--------------- |
+| `article`        | `Object`         |
+| `title`          | `String`         |
+| `description`    | `String`         |
+| `body`           | `String`         |
+| `createdAt`      | `Date or String` |
+| `updatedAt`      | `Date or String` |
+| `favorited`      | `Boolean`        |
+| `favoritesCount` | `Number`         |
+| `Author`         | `Object`         |
+| `username`       | `String`         |
+| `bio`            | `String`         |
+| `image`          | `String`         |
+| `following`      | `Boolean`        |
+
+### Response Body Example:
+
+```JSON
+{
+    "article": {
+        "slug": "how-to-train-your-dragon",
+        "title": "How to train your dragon",
+        "description": "Ever wonder how?",
+        "body": "It takes a Jacobian",
+        "tagList": ["dragons", "training"],
+        "createdAt": "2016-02-18T03:22:56.637Z",
+        "updatedAt": "2016-02-18T03:48:35.824Z",
+        "favorited": false,
+        "favoritesCount": 0,
+        "author": {
+            "username": "jake",
+            "bio": "I work at statefarm",
+            "image": "https://i.stack.imgur.com/xHWG8.jpg",
+            "following": false
+        }
+    }
+}
+```
+### Errors:
+> #### `StatusCode` `400` - Invalid request body
+>
+> Must provide required params content listed above, Article already unfavorited
+> #### `StatusCode` `404` - Invalid request body
+>
+> Slug provided in params does not exist
+> #### `StatusCode` `403` - Unauthorized
+>
+> This error will redirect user to homepage. 
+>
+> Authorization header not provided, Expired JWT token, Invalid JWT token
