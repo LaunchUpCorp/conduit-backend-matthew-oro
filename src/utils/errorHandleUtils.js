@@ -36,6 +36,10 @@ export const errorHandles = [
     message: "query does not exist",
     statusCode: 404
   },
+  {
+    message: "No rows destroyed",
+    statusCode: 400
+  }
 ]
 export const jwtErrorHandles = [
   {

@@ -308,7 +308,6 @@ describe("test article route", () => {
           .post("/api/articles/slug-slug-slug/favorite")
           .set("Authorization", `Bearer ${token}`);
 
-        console.log(body)
         await deserializeUser(mockReq, mockRes, mockNext);
 
         expect(statusCode).toBe(201);
@@ -424,6 +423,161 @@ describe("test article route", () => {
           queryArticleDbPayload.article.slug
         );
         expect(favoriteArticleMock).toHaveBeenCalledWith(
+          verifyTokenPayload.email,
+          "ARTICLE ID HERE"
+        );
+      });
+    });
+  });
+
+  // DELETE /api/articles/:slug/favorite
+  describe("DELETE /api/articles/:slug/favorite - unFavorite article", () => {
+    describe("Given query is valid and current user is authenticated", () => {
+      let token = "";
+      beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
+      it("should return status 200 and article payload", async () => {
+        //middleware init
+        const mockReq = {
+          get: jest.fn(() => `Bearer ${token}`),
+        };
+        const mockRes = {};
+        const mockNext = jest.fn();
+
+        const verifyTokenMock = jest
+          .spyOn(jwtUtils, "verifyToken")
+          .mockReturnValueOnce(verifyTokenPayload);
+
+        // end of middleware init
+        const modelInstanceMock = { ...queryArticleDbPayload.article, save: jest.fn(() => queryArticleDbPayload.article) }
+
+        const queryOneArticleMock = jest
+          .spyOn(articleControllerUtils, "queryOneArticle")
+          .mockReturnValueOnce(modelInstanceMock);
+
+        const unFavoriteArticleMock = jest.spyOn(
+          articleControllerUtils,
+          "unFavoriteArticle"
+        ).mockReturnValueOnce(void 0)
+
+        const { body, statusCode } = await supertest(app)
+          .delete("/api/articles/slug-slug-slug/favorite")
+          .set("Authorization", `Bearer ${token}`);
+
+        await deserializeUser(mockReq, mockRes, mockNext);
+
+        expect(statusCode).toBe(200);
+
+        expect(body).toEqual(expectQueryArticlePayload);
+
+        // middleware tests
+        expect(mockReq.get).toHaveBeenCalledWith(`Authorization`);
+        expect(mockReq).toEqual({ ...mockReq, user: verifyTokenPayload });
+        expect(mockNext).toHaveBeenCalled();
+        //end of middleware tests
+
+        expect(verifyTokenMock).toBeCalledWith(expect.any(String));
+
+        expect(queryOneArticleMock).toHaveBeenCalledWith(
+          queryArticleDbPayload.article.slug
+        );
+        expect(unFavoriteArticleMock).toHaveBeenCalledWith(
+          "new@new.new",
+          "ID of Article"
+        );
+        expect(modelInstanceMock.save).toHaveBeenCalled()
+      });
+    });
+    describe("Given query does not exist and current user is authenticated", () => {
+      let token = "";
+      beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
+      it("should return status 400", async () => {
+        //middleware init
+        const mockReq = {
+          get: jest.fn(() => `Bearer ${token}`),
+        };
+        const mockRes = {};
+        const mockNext = jest.fn();
+
+        const verifyTokenMock = jest
+          .spyOn(jwtUtils, "verifyToken")
+          .mockReturnValueOnce(verifyTokenPayload);
+
+        // end of middleware init
+
+        const queryOneArticleMock = jest
+          .spyOn(articleControllerUtils, "queryOneArticle")
+          .mockReturnValueOnce(null);
+        const unFavoriteArticleMock = jest.spyOn(
+          articleControllerUtils,
+          "unFavoriteArticle"
+        )
+
+        const { statusCode } = await supertest(app)
+          .delete("/api/articles/slug-slug-slug/favorite")
+          .set("Authorization", `Bearer ${token}`);
+
+        await deserializeUser(mockReq, mockRes, mockNext);
+
+        expect(statusCode).toBe(404);
+
+        // middleware tests
+        expect(mockReq.get).toHaveBeenCalledWith(`Authorization`);
+        expect(mockReq).toEqual({ ...mockReq, user: verifyTokenPayload });
+        expect(mockNext).toHaveBeenCalled();
+        //end of middleware tests
+
+        expect(verifyTokenMock).toBeCalledWith(expect.any(String));
+
+        expect(queryOneArticleMock).toHaveBeenCalledWith(
+          queryArticleDbPayload.article.slug
+        );
+        expect(unFavoriteArticleMock).not.toHaveBeenCalled();
+      });
+    });
+    describe("Given query is already unFavorited and current user is authenticated", () => {
+      let token = "";
+      beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
+      it("should return status 400", async () => {
+        //middleware init
+        const mockReq = {
+          get: jest.fn(() => `Bearer ${token}`),
+        };
+        const mockRes = {};
+        const mockNext = jest.fn();
+
+        const verifyTokenMock = jest
+          .spyOn(jwtUtils, "verifyToken")
+          .mockReturnValueOnce(verifyTokenPayload);
+
+        // end of middleware init
+
+        const queryOneArticleMock = jest
+          .spyOn(articleControllerUtils, "queryOneArticle")
+          .mockReturnValueOnce(queryArticleDbPayload.article);
+        const unFavoriteArticleMock = jest
+          .spyOn(articleControllerUtils, "unFavoriteArticle")
+          .mockRejectedValueOnce(new Error("No rows destroyed"));
+
+        const { statusCode } = await supertest(app)
+          .delete("/api/articles/slug-slug-slug/favorite")
+          .set("Authorization", `Bearer ${token}`)
+
+        await deserializeUser(mockReq, mockRes, mockNext);
+
+        expect(statusCode).toBe(400);
+
+        // middleware tests
+        expect(mockReq.get).toHaveBeenCalledWith(`Authorization`);
+        expect(mockReq).toEqual({ ...mockReq, user: verifyTokenPayload });
+        expect(mockNext).toHaveBeenCalled();
+        //end of middleware tests
+
+        expect(verifyTokenMock).toBeCalledWith(expect.any(String));
+
+        expect(queryOneArticleMock).toHaveBeenCalledWith(
+          queryArticleDbPayload.article.slug
+        );
+        expect(unFavoriteArticleMock).toHaveBeenCalledWith(
           verifyTokenPayload.email,
           "ARTICLE ID HERE"
         );

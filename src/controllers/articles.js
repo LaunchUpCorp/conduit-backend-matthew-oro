@@ -5,6 +5,7 @@ import {
   createArticlePayloadFormat,
   queryOneArticlePayloadFormat,
   favoriteArticle,
+  unFavoriteArticle
 } from "../utils/articleControllerUtils";
 import { errorHandles } from "../utils/errorHandleUtils";
 
@@ -73,6 +74,27 @@ export async function handleFavoriteArticle(req, res) {
     const payload = queryOneArticlePayloadFormat(query);
 
     return res.status(201).json(payload);
+  } catch (e) {
+    console.error(e);
+
+    const error = errorHandles.find(({ message }) => message === e.message);
+
+    if (!error) return res.status(500).send("Server Error");
+
+    return res.status(error.statusCode).send(error.message);
+  }
+}
+export async function handleUnFavoriteArticle(req, res) {
+  try {
+    const query = queryOneArticle(req.params.slug);
+    if (!query) throw new Error("query does not exist");
+
+    await unFavoriteArticle(req.user.email, query.id);
+    await query.save();
+
+    const payload = queryOneArticlePayloadFormat(query);
+
+    return res.status(200).json(payload);
   } catch (e) {
     console.error(e);
 
