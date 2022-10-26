@@ -1,4 +1,4 @@
-import { validateBody } from "../../src/utils/validators";
+import { validateBody, removeNull } from "../../src/utils/validators";
 
 const expectedVal = {
   1: "string",
@@ -12,9 +12,9 @@ describe("Unit test functionality of validateBody()", () => {
       it("should return false", () => {
         const input = { food: "borger" };
 
-        const valid = validateBody(input,expectedVal) 
+        const valid = validateBody(input, expectedVal);
 
-        expect(valid).toBe(false)
+        expect(valid).toBe(false);
       });
     });
     describe("Types doesn't match - case 1", () => {
@@ -25,9 +25,9 @@ describe("Unit test functionality of validateBody()", () => {
           3: "food",
         };
 
-        const valid = validateBody(input,expectedVal) 
+        const valid = validateBody(input, expectedVal);
 
-        expect(valid).toBe(false)
+        expect(valid).toBe(false);
       });
     });
     describe("Types doesn't match - case 2", () => {
@@ -38,23 +38,68 @@ describe("Unit test functionality of validateBody()", () => {
           3: null,
         };
 
-        const valid = validateBody(input,expectedVal) 
+        const valid = validateBody(input, expectedVal);
 
-        expect(valid).toBe(false)
+        expect(valid).toBe(false);
       });
     });
   });
   describe("Valid inputs", () => {
     it("should return true", () => {
-      const  input = {
+      const input = {
         1: "keyboard",
         2: 1.46,
-        3: null
-      }
+        3: null,
+      };
 
-      const valid = validateBody(input, expectedVal)
+      const valid = validateBody(input, expectedVal);
 
-      expect(valid).toBe(true)
-    })
-  })
+      expect(valid).toBe(true);
+    });
+  });
+});
+describe("Unit test of removeNull()", () => {
+  describe("Given keys all null", () => {
+    it("should return null", () => {
+      const testValues = {
+        something: null,
+        test: null,
+        food: null,
+      };
+      const test = removeNull(testValues);
+
+      expect(test).toEqual(null);
+    });
+  });
+  describe("Given keys has value", () => {
+    it("should only return propeties with values", () => {
+      const update = {
+        email: null,
+        username: "something",
+        password: null,
+        bio: "cool",
+        image: null,
+      };
+      const test = removeNull(update);
+
+      expect(test).toEqual({
+        username: update.username,
+        bio: update.bio,
+      });
+    });
+  });
+  describe("Given key properties with at least 1 key not valued null", () => {
+    it("should return at least key value pair", () => {
+      const update = {
+        email: null,
+        username: null,
+        password: null,
+        bio: "to test or not to test",
+        image: null,
+      };
+      const test = removeNull(update);
+
+      expect(test).toEqual({ bio: update.bio });
+    });
+  });
 });
