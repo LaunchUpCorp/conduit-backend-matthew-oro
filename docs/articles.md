@@ -33,10 +33,11 @@ Authentication header Type:
 
 ```JSON
 {
-     "user": {
-         "username": "example",
-         "email": "example@example.example",
-         "password": "1exampleword"
+     "article": {
+         "title": "example",
+         "description": "This is an example",
+         "body": "I love examples",
+         "tagList": ["example","new"]
      }
 }
 ```
@@ -153,6 +154,103 @@ Authentication header Type:
 >
 > Slug provided in params does not exist
 
+## Update Article
+
+### Endpoint: `PUT` `/api/articles/:slug`
+
+### Authentication header required
+
+Authentication header Type:
+| Name | Type |
+|:-----|:-----|
+| `Authorization` | `String` |
+
+### Authentication header example:
+
+```JSON
+{
+  "Authorization": "Bearer jwt.token.here"
+}
+```
+
+### Request Body Type:
+At least one of: `title`, `description`, `body` must be provided
+
+| Name                     | Type            |
+| :----------------------- | :-------------- |
+| `article` _required_     | `Object`        |
+| `title` _optional_       | `String`        |
+| `description` _optional_ | `String`        |
+| `body` _optional_        | `String`        |
+
+### Request Body Example:
+
+```JSON
+{
+     "article": {
+         "title": "New Title"
+     }
+}
+```
+### Params:
+
+| Name              | Type     |
+| :---------------- | :------- |
+| `slug` _required_ | `String` |
+
+### Response Body Type:
+
+| Name             | Type             |
+| :--------------- | :--------------- |
+| `article`        | `Object`         |
+| `title`          | `String`         |
+| `description`    | `String`         |
+| `body`           | `String`         |
+| `createdAt`      | `Date or String` |
+| `updatedAt`      | `Date or String` |
+| `favorited`      | `Boolean`        |
+| `favoritesCount` | `Number`         |
+| `Author`         | `Object`         |
+| `username`       | `String`         |
+| `bio`            | `String`         |
+| `image`          | `String`         |
+| `following`      | `Boolean`        |
+
+### Response Body Example:
+
+```JSON
+{
+    "article": {
+        "slug": "how-to-train-your-dragon",
+        "title": "How to train your dragon",
+        "description": "Ever wonder how?",
+        "body": "It takes a Jacobian",
+        "tagList": ["dragons", "training"],
+        "createdAt": "2016-02-18T03:22:56.637Z",
+        "updatedAt": "2016-02-18T03:48:35.824Z",
+        "favorited": false,
+        "favoritesCount": 0,
+        "author": {
+            "username": "jake",
+            "bio": "I work at statefarm",
+            "image": "https://i.stack.imgur.com/xHWG8.jpg",
+            "following": false
+        }
+    }
+}
+```
+
+
+### Errors:
+> #### `StatusCode` `400` - Invalid request body
+>
+> Must provide required params content listed above
+> #### `StatusCode` `404` - Invalid request body
+>
+> Slug provided in params does not exist
+> #### `StatusCode` `422` - Request body not unique
+>
+> Requested title is already taken
 
 ## Favorite Article
 

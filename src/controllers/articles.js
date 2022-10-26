@@ -1,11 +1,13 @@
-import { validateBody } from "../utils/validators";
+import { removeNull, validateBody } from "../utils/validators";
 import {
   createArticle,
   queryOneArticle,
   createArticlePayloadFormat,
   queryOneArticlePayloadFormat,
   favoriteArticle,
-  unFavoriteArticle
+  unFavoriteArticle,
+  queryOneArticleAndUpdate,
+  titleToSlug,
 } from "../utils/articleControllerUtils";
 import { errorHandles } from "../utils/errorHandleUtils";
 
@@ -93,6 +95,45 @@ export async function handleUnFavoriteArticle(req, res) {
     await query.save();
 
     const payload = queryOneArticlePayloadFormat(query);
+
+    return res.status(200).json(payload);
+  } catch (e) {
+    console.error(e);
+
+    const error = errorHandles.find(({ message }) => message === e.message);
+
+    if (!error) return res.status(500).send("Server Error");
+
+    return res.status(error.statusCode).send(error.message);
+  }
+}
+export async function handleUpdateArticle(req, res) {
+  try {
+    const { article } = req.body;
+    if (!article) {
+      throw new Error("No payload found");
+    }
+    const formatPayload = {
+      slug: (article.title && titleToSlug(article.title)) || null,
+      title: article.title || null,
+      description: article.description || null,
+      body: article.body || null,
+    };
+    const formattedArticle = removeNull(formatPayload);
+    if (!formattedArticle) {
+      throw new Error("Invalid payload format");
+    }
+
+    const updatedArticle = await queryOneArticleAndUpdate({
+      email: req.user.email,
+      slug: req.params.slug,
+      payload: formattedArticle,
+    });
+
+    if (!updatedArticle) throw new Error("query does not exist");
+
+    const payload = queryOneArticlePayloadFormat(updatedArticle);
+
 
     return res.status(200).json(payload);
   } catch (e) {

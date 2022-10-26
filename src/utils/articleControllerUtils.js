@@ -161,3 +161,64 @@ export function titleToSlug(title) {
   const slug = title.toLowerCase().replace(/ /g, "-");
   return slug;
 }
+export async function queryOneArticleAndUpdate({ email, slug, payload }) {
+  try {
+    let query = await ArticleModel.findOne({
+      where: { authorId: email, slug: slug },
+      attributes: [
+        "id",
+        "slug",
+        "title",
+        "description",
+        "body",
+        "updatedAt",
+        "createdAt",
+      ],
+      include: [
+        {
+          model: TagModel,
+          as: "tagList",
+          attributes: ["tag"],
+          required: false,
+        },
+        {
+          model: UserModel,
+          as: "favoritesCount",
+          attributes: ["email"],
+          required: false,
+        },
+        {
+          model: UserModel,
+          as: "author",
+          attributes: ["username", "bio", "image"],
+          required: false,
+          include: [
+            {
+              model: UserModel,
+              attributes: ["email"],
+              as: "following",
+              required: false,
+              through: {
+                attributes: [],
+              },
+            },
+          ],
+        },
+      ],
+    });
+    query.set(payload);
+    await query.save();
+    const article = query.get({ plain: true });
+    article.favoritesCount = article.favoritesCount.length || 0;
+    article.favorited = false;
+    article.tagList = article.tagList.map(({ tag }) => tag);
+    article.author.following = article.author.following.length > 0;
+    return article;
+  } catch (e) {
+    console.error(e);
+    if (e.name === "SequelizeUniqueConstraintError") {
+      throw new Error("Payload value(s) not unique");
+    }
+    return null;
+  }
+}

@@ -1,4 +1,4 @@
-import { validateBody, validateEmail } from "../utils/validators";
+import { removeNull, validateBody, validateEmail } from "../utils/validators";
 import {
   createUser,
   updateUserInputFormat,
@@ -40,7 +40,6 @@ export async function registerUser(req, res) {
     return res.status(201).json(userPayload);
   } catch (e) {
     console.error(e);
-
 
     const error = errorHandles.find(({ message }) => message === e.message);
 
@@ -104,7 +103,13 @@ export async function updateUser(req, res) {
     if (!user) {
       throw new Error("No payload found");
     }
-    const formattedUser = updateUserInputFormat(user);
+    const formatPayload = {
+      username: user.username || null,
+      password: user.password || null,
+      bio: user.bio || null,
+      image: user.image || null,
+    };
+    const formattedUser = removeNull(formatPayload);
     if (!formattedUser) {
       throw new Error("Invalid payload format");
     }

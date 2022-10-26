@@ -45,22 +45,6 @@ export async function queryOneUserAndUpdate(email, payload) {
   }
 }
 
-export function updateUserInputFormat(user) {
-  const removeNull = {
-    username: user.username || null,
-    password: user.password || null,
-    bio: user.bio || null,
-    image: user.image || null,
-  };
-  Object.keys(removeNull).forEach((key) => {
-    if (!removeNull[key]) {
-      delete removeNull[key];
-    }
-  });
-  if (Object.keys(removeNull).length === 0) return null;
-  return removeNull;
-}
-
 export function userPayloadFormat(payload) {
   return {
     user: {

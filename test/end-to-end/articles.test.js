@@ -293,16 +293,18 @@ describe("test article route", () => {
           .mockReturnValueOnce(verifyTokenPayload);
 
         // end of middleware init
-        const modelInstanceMock = { ...queryArticleDbPayload.article, save: jest.fn(() => queryArticleDbPayload.article) }
+        const modelInstanceMock = {
+          ...queryArticleDbPayload.article,
+          save: jest.fn(() => queryArticleDbPayload.article),
+        };
 
         const queryOneArticleMock = jest
           .spyOn(articleControllerUtils, "queryOneArticle")
           .mockReturnValueOnce(modelInstanceMock);
 
-        const favoriteArticleMock = jest.spyOn(
-          articleControllerUtils,
-          "favoriteArticle"
-        ).mockReturnValueOnce(void 0)
+        const favoriteArticleMock = jest
+          .spyOn(articleControllerUtils, "favoriteArticle")
+          .mockReturnValueOnce(void 0);
 
         const { body, statusCode } = await supertest(app)
           .post("/api/articles/slug-slug-slug/favorite")
@@ -329,7 +331,7 @@ describe("test article route", () => {
           "new@new.new",
           "ID of Article"
         );
-        expect(modelInstanceMock.save).toHaveBeenCalled()
+        expect(modelInstanceMock.save).toHaveBeenCalled();
       });
     });
     describe("Given query does not exist and current user is authenticated", () => {
@@ -355,7 +357,7 @@ describe("test article route", () => {
         const favoriteArticleMock = jest.spyOn(
           articleControllerUtils,
           "favoriteArticle"
-        )
+        );
 
         const { statusCode } = await supertest(app)
           .post("/api/articles/slug-slug-slug/favorite")
@@ -405,7 +407,7 @@ describe("test article route", () => {
 
         const { statusCode } = await supertest(app)
           .post("/api/articles/slug-slug-slug/favorite")
-          .set("Authorization", `Bearer ${token}`)
+          .set("Authorization", `Bearer ${token}`);
 
         await deserializeUser(mockReq, mockRes, mockNext);
 
@@ -448,16 +450,18 @@ describe("test article route", () => {
           .mockReturnValueOnce(verifyTokenPayload);
 
         // end of middleware init
-        const modelInstanceMock = { ...queryArticleDbPayload.article, save: jest.fn(() => queryArticleDbPayload.article) }
+        const modelInstanceMock = {
+          ...queryArticleDbPayload.article,
+          save: jest.fn(() => queryArticleDbPayload.article),
+        };
 
         const queryOneArticleMock = jest
           .spyOn(articleControllerUtils, "queryOneArticle")
           .mockReturnValueOnce(modelInstanceMock);
 
-        const unFavoriteArticleMock = jest.spyOn(
-          articleControllerUtils,
-          "unFavoriteArticle"
-        ).mockReturnValueOnce(void 0)
+        const unFavoriteArticleMock = jest
+          .spyOn(articleControllerUtils, "unFavoriteArticle")
+          .mockReturnValueOnce(void 0);
 
         const { body, statusCode } = await supertest(app)
           .delete("/api/articles/slug-slug-slug/favorite")
@@ -484,7 +488,7 @@ describe("test article route", () => {
           "new@new.new",
           "ID of Article"
         );
-        expect(modelInstanceMock.save).toHaveBeenCalled()
+        expect(modelInstanceMock.save).toHaveBeenCalled();
       });
     });
     describe("Given query does not exist and current user is authenticated", () => {
@@ -510,7 +514,7 @@ describe("test article route", () => {
         const unFavoriteArticleMock = jest.spyOn(
           articleControllerUtils,
           "unFavoriteArticle"
-        )
+        );
 
         const { statusCode } = await supertest(app)
           .delete("/api/articles/slug-slug-slug/favorite")
@@ -560,7 +564,7 @@ describe("test article route", () => {
 
         const { statusCode } = await supertest(app)
           .delete("/api/articles/slug-slug-slug/favorite")
-          .set("Authorization", `Bearer ${token}`)
+          .set("Authorization", `Bearer ${token}`);
 
         await deserializeUser(mockReq, mockRes, mockNext);
 
@@ -581,6 +585,229 @@ describe("test article route", () => {
           verifyTokenPayload.email,
           "ARTICLE ID HERE"
         );
+      });
+    });
+  });
+
+  // PUT /api/articles/:slug
+  describe("PUT /api/articles/:slug - update article", () => {
+    describe("Given request payload is valid and current user is authenticated", () => {
+      let token = "";
+      beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
+      it("should return status 201 and article payload", async () => {
+        //middleware init
+        const mockReq = {
+          get: jest.fn(() => `Bearer ${token}`),
+        };
+        const mockRes = {};
+        const mockNext = jest.fn();
+
+        const verifyTokenMock = jest
+          .spyOn(jwtUtils, "verifyToken")
+          .mockReturnValueOnce(verifyTokenPayload);
+
+        // end of middleware init
+
+        const queryOneArticleAndUpdateMock = jest
+          .spyOn(articleControllerUtils, "queryOneArticleAndUpdate")
+          .mockReturnValueOnce(queryArticleDbPayload.article);
+
+        const { body, statusCode } = await supertest(app)
+          .put("/api/articles/old-title")
+          .set("Authorization", `Bearer ${token}`)
+          .send({ article: { title: "New Title" } });
+
+        await deserializeUser(mockReq, mockRes, mockNext);
+
+        expect(statusCode).toBe(200);
+
+        expect(body).toEqual(expectQueryArticlePayload);
+
+        // middleware tests
+        expect(mockReq.get).toHaveBeenCalledWith(`Authorization`);
+        expect(mockReq).toEqual({ ...mockReq, user: verifyTokenPayload });
+        expect(mockNext).toHaveBeenCalled();
+        //end of middleware tests
+
+        expect(verifyTokenMock).toBeCalledWith(expect.any(String));
+
+        expect(queryOneArticleAndUpdateMock).toHaveBeenCalledWith({
+          email: verifyTokenPayload.email,
+          payload: expect.any(Object),
+          slug: expect.any(String),
+        });
+      });
+    });
+    describe("Given request payload is empty and current user is authenticated", () => {
+      let token = "";
+      beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
+      it("should return status 400", async () => {
+        //middleware init
+        const mockReq = {
+          get: jest.fn(() => `Bearer ${token}`),
+        };
+        const mockRes = {};
+        const mockNext = jest.fn();
+
+        const verifyTokenMock = jest
+          .spyOn(jwtUtils, "verifyToken")
+          .mockReturnValueOnce(verifyTokenPayload);
+
+        // end of middleware init
+
+        const queryOneArticleAndUpdateMock = jest
+          .spyOn(articleControllerUtils, "queryOneArticleAndUpdate")
+          .mockReturnValueOnce(queryArticleDbPayload);
+
+        const { statusCode } = await supertest(app)
+          .put("/api/articles/old-title")
+          .set("Authorization", `Bearer ${token}`);
+
+        await deserializeUser(mockReq, mockRes, mockNext);
+
+        expect(statusCode).toBe(400);
+
+        // middleware tests
+        expect(mockReq.get).toHaveBeenCalledWith(`Authorization`);
+        expect(mockReq).toEqual({ ...mockReq, user: verifyTokenPayload });
+        expect(mockNext).toHaveBeenCalled();
+        //end of middleware tests
+
+        expect(verifyTokenMock).toBeCalledWith(expect.any(String));
+
+        expect(queryOneArticleAndUpdateMock).not.toHaveBeenCalled();
+      });
+    });
+    describe("Given invalid payload format", () => {
+      let token = "";
+      beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
+      it("should return status 400", async () => {
+        //middleware init
+        const mockReq = {
+          get: jest.fn(() => `Bearer ${token}`),
+        };
+        const mockRes = {};
+        const mockNext = jest.fn();
+
+        const verifyTokenMock = jest
+          .spyOn(jwtUtils, "verifyToken")
+          .mockReturnValueOnce(verifyTokenPayload);
+
+        // end of middleware init
+
+        const queryOneArticleAndUpdateMock = jest.spyOn(
+          articleControllerUtils,
+          "queryOneArticleAndUpdate"
+        );
+
+        const { statusCode } = await supertest(app)
+          .put("/api/articles/old-title")
+          .set("Authorization", `Bearer ${token}`)
+          .send(invalidArticlePayloadFormat);
+
+        await deserializeUser(mockReq, mockRes, mockNext);
+
+        expect(statusCode).toBe(400);
+
+        // middleware tests
+        expect(mockReq.get).toHaveBeenCalledWith(`Authorization`);
+        expect(mockReq).toEqual({ ...mockReq, user: verifyTokenPayload });
+        expect(mockNext).toHaveBeenCalled();
+        //end of middleware tests
+
+        expect(verifyTokenMock).toBeCalledWith(expect.any(String));
+
+        expect(queryOneArticleAndUpdateMock).not.toHaveBeenCalled();
+      });
+    });
+    describe("Given valid payload, but slug does not exist. User is authenticated", () => {
+      let token = "";
+      beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
+      it("should return status 404", async () => {
+        //middleware init
+        const mockReq = {
+          get: jest.fn(() => `Bearer ${token}`),
+        };
+        const mockRes = {};
+        const mockNext = jest.fn();
+
+        const verifyTokenMock = jest
+          .spyOn(jwtUtils, "verifyToken")
+          .mockReturnValueOnce(verifyTokenPayload);
+
+        // end of middleware init
+
+        const queryOneArticleAndUpdateMock = jest
+          .spyOn(articleControllerUtils, "queryOneArticleAndUpdate")
+          .mockReturnValueOnce(null);
+
+        const { statusCode } = await supertest(app)
+          .put("/api/articles/not-existing-title")
+          .set("Authorization", `Bearer ${token}`)
+          .send({ article: { title: "New Title" } });
+
+        await deserializeUser(mockReq, mockRes, mockNext);
+
+        expect(statusCode).toBe(404);
+
+        // middleware tests
+        expect(mockReq.get).toHaveBeenCalledWith(`Authorization`);
+        expect(mockReq).toEqual({ ...mockReq, user: verifyTokenPayload });
+        expect(mockNext).toHaveBeenCalled();
+        //end of middleware tests
+
+        expect(verifyTokenMock).toBeCalledWith(expect.any(String));
+
+        expect(queryOneArticleAndUpdateMock).toHaveBeenCalledWith({
+          email: verifyTokenPayload.email,
+          payload: expect.any(Object),
+          slug: expect.any(String),
+        });
+      });
+    });
+    describe("Given request payload is not unique, and current user is authenticated", () => {
+      let token = "";
+      beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
+      it("should return status 422", async () => {
+        //middleware init
+        const mockReq = {
+          get: jest.fn(() => `Bearer ${token}`),
+        };
+        const mockRes = {};
+        const mockNext = jest.fn();
+
+        const verifyTokenMock = jest
+          .spyOn(jwtUtils, "verifyToken")
+          .mockReturnValueOnce(verifyTokenPayload);
+
+        // end of middleware init
+
+        const queryOneArticleAndUpdateMock = jest
+          .spyOn(articleControllerUtils, "queryOneArticleAndUpdate")
+          .mockRejectedValueOnce(new Error("Payload value(s) not unique"));
+
+        const { statusCode } = await supertest(app)
+          .put("/api/articles/old-title")
+          .set("Authorization", `Bearer ${token}`)
+          .send({ article: { title: "Old Title" } });
+
+        await deserializeUser(mockReq, mockRes, mockNext);
+
+        expect(statusCode).toBe(422);
+
+        // middleware tests
+        expect(mockReq.get).toHaveBeenCalledWith(`Authorization`);
+        expect(mockReq).toEqual({ ...mockReq, user: verifyTokenPayload });
+        expect(mockNext).toHaveBeenCalled();
+        //end of middleware tests
+
+        expect(verifyTokenMock).toBeCalledWith(expect.any(String));
+
+        expect(queryOneArticleAndUpdateMock).toHaveBeenCalledWith({
+          email: verifyTokenPayload.email,
+          payload: expect.any(Object),
+          slug: expect.any(String),
+        });
       });
     });
   });
