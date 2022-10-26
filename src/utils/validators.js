@@ -40,3 +40,12 @@ export function validateTagList(tags){
   return isValid
 }
 
+export function removeNull(payload) {
+  Object.keys(payload).forEach((key) => {
+    if (!payload[key]) {
+      delete payload[key];
+    }
+  });
+  if (Object.keys(payload).length === 0) return null;
+  return payload;
+}
