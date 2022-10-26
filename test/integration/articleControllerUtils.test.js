@@ -7,6 +7,7 @@ import {
   createArticle,
   favoriteArticle,
   queryOneArticle,
+  queryOneArticleAndUpdate,
   unFavoriteArticle,
 } from "../../src/utils/articleControllerUtils";
 import { createUser } from "../../src/utils/userControllerUtils";
@@ -123,6 +124,32 @@ describe("Integration tests for article controller utils", () => {
           await unFavoriteArticle(user.email, articleId.id);
         } catch (e) {
           expect(e.message).toEqual("No rows destroyed");
+        }
+      });
+    });
+  });
+
+  describe("Test functionality of queryOneArticleAndUpdate()", () => {
+    describe("Given valid user and slug, and update payload is unique", () => {
+      it("should update selected article and return the updated article", async () => {
+        const updatedArticle = await queryOneArticleAndUpdate({
+          email: user.email,
+          payload: { title: "New New New", slug: "new-new-new" },
+          slug: "click-bait-here",
+        });
+        expect(updatedArticle).toEqual({...expectQueryArticlePayload.article, id: expect.any(String)});
+      });
+    });
+    describe("Given valid user and slug, but update payload is not unique", () => {
+      it("should throw error", async () => {
+        try {
+          await queryOneArticleAndUpdate({
+            email: user.email,
+            payload: { title: "New New New", slug: "new-new-new" },
+            slug: "click-bait-here",
+          });
+        } catch (e) {
+          expect(e.message).toEqual("Payload value(s) not unique");
         }
       });
     });
