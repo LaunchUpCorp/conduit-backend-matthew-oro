@@ -8,6 +8,7 @@ import {
   unFavoriteArticle,
   queryOneArticleAndUpdate,
   titleToSlug,
+  destroyArticle
 } from "../utils/articleControllerUtils";
 import { errorHandles } from "../utils/errorHandleUtils";
 
@@ -134,8 +135,24 @@ export async function handleUpdateArticle(req, res) {
 
     const payload = queryOneArticlePayloadFormat(updatedArticle);
 
-
     return res.status(200).json(payload);
+  } catch (e) {
+    console.error(e);
+
+    const error = errorHandles.find(({ message }) => message === e.message);
+
+    if (!error) return res.status(500).send("Server Error");
+
+    return res.status(error.statusCode).send(error.message);
+  }
+}
+export async function handleDeleteArticle(req, res) {
+  try {
+
+    await destroyArticle(req.user.email, req.params.slug)
+
+    return res.sendStatus(200)
+
   } catch (e) {
     console.error(e);
 

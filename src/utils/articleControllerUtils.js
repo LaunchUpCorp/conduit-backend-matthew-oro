@@ -222,3 +222,21 @@ export async function queryOneArticleAndUpdate({ email, slug, payload }) {
     return null;
   }
 }
+export async function destroyArticle(email, slug) {
+  try {
+    const destroy = await ArticleModel.destroy({
+      where: {
+        slug: slug,
+      },
+    });
+    if (destroy === 0) {
+      throw new Error("No rows destroyed");
+    }
+  } catch (e) {
+    if (e.name === "SequelizeUniqueConstraintError") {
+      throw new Error("Payload value(s) not unique");
+    } else {
+      throw e;
+    }
+  }
+}

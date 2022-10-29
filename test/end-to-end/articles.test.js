@@ -594,7 +594,7 @@ describe("test article route", () => {
     describe("Given request payload is valid and current user is authenticated", () => {
       let token = "";
       beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
-      it("should return status 201 and article payload", async () => {
+      it("should return status 200 and article payload", async () => {
         //middleware init
         const mockReq = {
           get: jest.fn(() => `Bearer ${token}`),
@@ -808,6 +808,90 @@ describe("test article route", () => {
           payload: expect.any(Object),
           slug: expect.any(String),
         });
+      });
+    });
+  });
+
+  // DELETE /api/articles/:slug
+  describe("DELETE /api/articles/:slug - delete article", () => {
+    describe("Given article slug belongs to user and is authenticated", () => {
+      let token = "";
+      beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
+      it("should return status 200", async () => {
+        //middleware init
+        const mockReq = {
+          get: jest.fn(() => `Bearer ${token}`),
+        };
+        const mockRes = {};
+        const mockNext = jest.fn();
+
+        const verifyTokenMock = jest
+          .spyOn(jwtUtils, "verifyToken")
+          .mockReturnValueOnce(verifyTokenPayload);
+
+        // end of middleware init
+
+        const destroyArticleMock = jest
+          .spyOn(articleControllerUtils, "destroyArticle")
+          .mockReturnValueOnce(void 0)
+
+        const { statusCode } = await supertest(app)
+          .delete("/api/articles/slug-slug-slug")
+          .set("Authorization", `Bearer ${token}`)
+
+        await deserializeUser(mockReq, mockRes, mockNext);
+
+        expect(statusCode).toBe(200);
+
+        // middleware tests
+        expect(mockReq.get).toHaveBeenCalledWith(`Authorization`);
+        expect(mockReq).toEqual({ ...mockReq, user: verifyTokenPayload });
+        expect(mockNext).toHaveBeenCalled();
+        //end of middleware tests
+
+        expect(verifyTokenMock).toBeCalledWith(expect.any(String));
+
+        expect(destroyArticleMock).toHaveBeenCalledWith(expect.any(String), expect.any(String));
+      });
+    });
+    describe("Given slug does not exist or belong to current user, and is authenticated", () => {
+      let token = "";
+      beforeAll(() => (token = jwtUtils.signToken(dbPayload, "1m")));
+      it("should return status 400", async () => {
+        //middleware init
+        const mockReq = {
+          get: jest.fn(() => `Bearer ${token}`),
+        };
+        const mockRes = {};
+        const mockNext = jest.fn();
+
+        const verifyTokenMock = jest
+          .spyOn(jwtUtils, "verifyToken")
+          .mockReturnValueOnce(verifyTokenPayload);
+
+        // end of middleware init
+
+        const destroyArticleMock = jest
+          .spyOn(articleControllerUtils, "destroyArticle")
+          .mockRejectedValueOnce(new Error("No rows destroyed"));
+
+        const { statusCode } = await supertest(app)
+          .delete("/api/articles/old-title")
+          .set("Authorization", `Bearer ${token}`);
+
+        await deserializeUser(mockReq, mockRes, mockNext);
+
+        expect(statusCode).toBe(400);
+
+        // middleware tests
+        expect(mockReq.get).toHaveBeenCalledWith(`Authorization`);
+        expect(mockReq).toEqual({ ...mockReq, user: verifyTokenPayload });
+        expect(mockNext).toHaveBeenCalled();
+        //end of middleware tests
+
+        expect(verifyTokenMock).toBeCalledWith(expect.any(String));
+
+        expect(destroyArticleMock).toHaveBeenCalledWith(expect.any(String), expect.any(String));
       });
     });
   });

@@ -251,6 +251,47 @@ At least one of: `title`, `description`, `body` must be provided
 > #### `StatusCode` `422` - Request body not unique
 >
 > Requested title is already taken
+> #### `StatusCode` `403` - Unauthorized
+>
+> This error will redirect user to homepage. 
+>
+> Authorization header not provided, Expired JWT token, Invalid JWT token
+
+## Delete Article
+
+### Endpoint: `DELETE` `/api/articles/:slug`
+
+### Authentication header required
+
+Authentication header Type:
+| Name | Type |
+|:-----|:-----|
+| `Authorization` | `String` |
+
+### Authentication header example:
+
+```JSON
+{
+  "Authorization": "Bearer jwt.token.here"
+}
+```
+
+### Params:
+
+| Name              | Type     |
+| :---------------- | :------- |
+| `slug` _required_ | `String` |
+
+
+### Errors:
+> #### `StatusCode` `400` - Invalid request body
+>
+> Must provide required params content listed above
+> #### `StatusCode` `403` - Unauthorized
+>
+> This error will redirect user to homepage. 
+>
+> Authorization header not provided, Expired JWT token, Invalid JWT token
 
 ## Favorite Article
 

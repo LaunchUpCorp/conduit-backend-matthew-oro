@@ -5,6 +5,7 @@ import {
 } from "../utils/articlesTestValue";
 import {
   createArticle,
+  destroyArticle,
   favoriteArticle,
   queryOneArticle,
   queryOneArticleAndUpdate,
@@ -150,6 +151,25 @@ describe("Integration tests for article controller utils", () => {
           });
         } catch (e) {
           expect(e.message).toEqual("Payload value(s) not unique");
+        }
+      });
+    });
+  });
+
+  describe("Test functionality of destroyArticle()", () => {
+    describe("Given valid user and slug exists", () => {
+      it("should remove article from database", async () => {
+        await expect(await destroyArticle(user.email, "new-new-new")).toBe(
+          undefined
+        ); // void function
+      });
+    });
+    describe("Given valid user and slug, but does not exist or belong to user", () => {
+      it("should throw error", async () => {
+        try {
+          await destroyArticle(user.email, "new-new-new")
+        } catch (e) {
+          expect(e.message).toEqual("No rows destroyed");
         }
       });
     });
